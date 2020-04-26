@@ -18,6 +18,14 @@ namespace rotstein
                 Styles.Titlebar | Styles.Close);
             window.Closed += (_, __) => window.Close();
             tiles = new Tile[PLAYGROUND_SIZE, PLAYGROUND_SIZE];
+
+            for (int i = 0; i < PLAYGROUND_SIZE; i++)
+            {
+                for (int j = 0; j < PLAYGROUND_SIZE; j++)
+                {
+                    tiles[i,j] = new Tile(TileKind.Planks);
+                }
+            }
         }
 
         public void Loop()
@@ -43,7 +51,11 @@ namespace rotstein
         
         void DrawTile(int x, int y, Tile tile)
         {
-            int texture_index = 0;
+            if (tile.kind == 0)
+                return;
+            
+
+            int texture_index = (int)tile.kind - 1;
             var sprite = new Sprite(atlas, new IntRect(
                 texture_index * 16,
                 0,
