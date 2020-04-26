@@ -6,7 +6,7 @@ namespace rotstein
 {
     class Drawer
     {
-        static readonly int PLAYGROUND_SIZE = 10;
+        static readonly uint PLAYGROUND_SIZE = 10;
         static readonly int SCALE = 6; // Game scale
         static readonly int TEXTURE_SIZE = 16;
         static readonly Vector2u WINDOW_SIZE = new Vector2u(1600, 900);
@@ -14,7 +14,6 @@ namespace rotstein
         Texture atlas;
         RenderWindow window;
         Game game;
-        Tile[,] tiles;
         
         public Drawer()
         {
@@ -48,18 +47,16 @@ namespace rotstein
                 window.SetView(view);
             };
 
-            game = new Game();
+            game = new Game(PLAYGROUND_SIZE);
 
             window.SetView(new View(new Vector2f(game.Player.X + TEXTURE_SIZE / 2, game.Player.Y + 2 * TEXTURE_SIZE / 2), // Player center
             new Vector2f(WINDOW_SIZE.X  / SCALE, WINDOW_SIZE.Y / SCALE)));
-
-            tiles = new Tile[PLAYGROUND_SIZE, PLAYGROUND_SIZE];
 
             for (int i = 0; i < PLAYGROUND_SIZE; i++)
             {
                 for (int j = 0; j < PLAYGROUND_SIZE; j++)
                 {
-                    tiles[i,j] = new Tile(TileKind.Planks);
+                    game.tiles[i,j] = new Tile(TileKind.Planks);
                 }
             }
         }
@@ -77,7 +74,7 @@ namespace rotstein
                 {
                     for (int j = 0; j < PLAYGROUND_SIZE; j++)
                     {
-                        DrawTile(i, j, tiles[i,j]);
+                        DrawTile(i, j, game.tiles[i,j]);
                     }
                 }
                 DrawPlayer();
