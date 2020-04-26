@@ -6,7 +6,9 @@ namespace rotstein
 {
     class Drawer
     {
-        const int PLAYGROUND_SIZE = 10;
+        static readonly int PLAYGROUND_SIZE = 10;
+        static readonly int SCALE = 6; // Game scale
+        static readonly int TEXTURE_SIZE = 16;
         Texture atlas;
         RenderWindow window;
         Tile[,] tiles;
@@ -17,6 +19,28 @@ namespace rotstein
             window = new RenderWindow(new VideoMode(1600, 900), "Rotstein",
                 Styles.Titlebar | Styles.Close);
             window.Closed += (_, __) => window.Close();
+
+            window.KeyPressed += (_, args) => {
+                View view = window.GetView();
+                int shift = TEXTURE_SIZE * SCALE / 2 / 2;
+                switch (args.Code)
+                {
+                    case Keyboard.Key.W:
+                        view.Move(new Vector2f(0f, -shift));
+                        break;
+                    case Keyboard.Key.A:
+                        view.Move(new Vector2f(-shift, 0f));
+                        break;
+                    case Keyboard.Key.S:
+                        view.Move(new Vector2f(0f, shift));
+                        break;
+                    case Keyboard.Key.D:
+                        view.Move(new Vector2f(shift, 0f));
+                        break;
+                }
+                window.SetView(view);
+            };
+
             tiles = new Tile[PLAYGROUND_SIZE, PLAYGROUND_SIZE];
 
             for (int i = 0; i < PLAYGROUND_SIZE; i++)
@@ -57,11 +81,11 @@ namespace rotstein
 
             int texture_index = (int)tile.kind - 1;
             var sprite = new Sprite(atlas, new IntRect(
-                texture_index * 16,
+                texture_index * TEXTURE_SIZE,
                 0,
-                16, 16));
-            sprite.Position = new Vector2f(x * 16 * 6, y * 16 * 6);
-            sprite.Scale = new Vector2f(6.0f, 6.0f);
+                TEXTURE_SIZE, TEXTURE_SIZE));
+            sprite.Position = new Vector2f(x * TEXTURE_SIZE * SCALE, y * TEXTURE_SIZE * SCALE);
+            sprite.Scale = new Vector2f(SCALE, SCALE);
 
             window.Draw(sprite);
         }
