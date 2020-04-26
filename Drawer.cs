@@ -9,6 +9,7 @@ namespace rotstein
         static readonly int PLAYGROUND_SIZE = 10;
         static readonly int SCALE = 6; // Game scale
         static readonly int TEXTURE_SIZE = 16;
+        static readonly Vector2u WINDOW_SIZE = new Vector2u(1600, 900);
         Texture atlas;
         RenderWindow window;
         Tile[,] tiles;
@@ -16,13 +17,13 @@ namespace rotstein
         public Drawer()
         {
             atlas = new Texture("rsc/atlas.png");
-            window = new RenderWindow(new VideoMode(1600, 900), "Rotstein",
+            window = new RenderWindow(new VideoMode(WINDOW_SIZE.X, WINDOW_SIZE.Y), "Rotstein",
                 Styles.Titlebar | Styles.Close);
             window.Closed += (_, __) => window.Close();
 
             window.KeyPressed += (_, args) => {
                 View view = window.GetView();
-                int shift = TEXTURE_SIZE * SCALE / 2 / 2;
+                int shift = TEXTURE_SIZE / 2 / 2;
                 switch (args.Code)
                 {
                     case Keyboard.Key.W:
@@ -40,6 +41,9 @@ namespace rotstein
                 }
                 window.SetView(view);
             };
+
+            window.SetView(new View(new Vector2f(0, 0), // Player center
+            new Vector2f(WINDOW_SIZE.X  / SCALE, WINDOW_SIZE.Y / SCALE)));
 
             tiles = new Tile[PLAYGROUND_SIZE, PLAYGROUND_SIZE];
 
@@ -84,8 +88,7 @@ namespace rotstein
                 texture_index * TEXTURE_SIZE,
                 0,
                 TEXTURE_SIZE, TEXTURE_SIZE));
-            sprite.Position = new Vector2f(x * TEXTURE_SIZE * SCALE, y * TEXTURE_SIZE * SCALE);
-            sprite.Scale = new Vector2f(SCALE, SCALE);
+            sprite.Position = new Vector2f(x * TEXTURE_SIZE, y * TEXTURE_SIZE);
 
             window.Draw(sprite);
         }
