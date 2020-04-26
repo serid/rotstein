@@ -1,5 +1,10 @@
+using SFML.System;
 namespace rotstein
 {
+    class Game {
+        public Vector2u Player;
+    }
+
     struct Tile
     {
         public TileKind kind;
