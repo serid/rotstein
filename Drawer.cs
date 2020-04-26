@@ -42,7 +42,7 @@ namespace rotstein
                 window.SetView(view);
             };
 
-            window.SetView(new View(new Vector2f(0, 0), // Player center
+            window.SetView(new View(new Vector2f(0 + TEXTURE_SIZE / 2, 0 + 2 * TEXTURE_SIZE / 2), // Player center
             new Vector2f(WINDOW_SIZE.X  / SCALE, WINDOW_SIZE.Y / SCALE)));
 
             tiles = new Tile[PLAYGROUND_SIZE, PLAYGROUND_SIZE];
@@ -72,6 +72,7 @@ namespace rotstein
                         DrawTile(i, j, tiles[i,j]);
                     }
                 }
+                DrawPlayer();
                 window.Display();
                 System.Threading.Thread.Sleep(15);
             }
@@ -90,6 +91,16 @@ namespace rotstein
                 TEXTURE_SIZE, TEXTURE_SIZE));
             sprite.Position = new Vector2f(x * TEXTURE_SIZE, y * TEXTURE_SIZE);
 
+            window.Draw(sprite);
+        }
+
+        void DrawPlayer()
+        {
+            var sprite = new Sprite(atlas, new IntRect(
+                0 * TEXTURE_SIZE,
+                1 * TEXTURE_SIZE,
+                TEXTURE_SIZE, 2 * TEXTURE_SIZE));
+            
             window.Draw(sprite);
         }
     }
