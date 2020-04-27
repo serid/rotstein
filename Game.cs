@@ -3,21 +3,21 @@ namespace rotstein
 {
     class Game {
         public Vector2u Player;
-        public Tile[,] tiles;
+        public Tile[,] Tiles;
         
         public Game(uint playground_size)
         {
-            tiles = new Tile[playground_size, playground_size];
+            Tiles = new Tile[playground_size, playground_size];
         }
     }
 
     struct Tile
     {
-        public TileKind kind;
+        public TileKind Kind;
 
         public Tile(TileKind kind)
         {
-            this.kind = kind;
+            this.Kind = kind;
         }
     }
 
