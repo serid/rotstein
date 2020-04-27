@@ -13,6 +13,17 @@ namespace rotstein
 
     struct Player {
         public Vector2u Position;
+        public byte AnimationStep;
+        public bool Direction; // false is left, true is right
+
+        public byte NextAnimationStep()
+        {
+            AnimationStep += 1;
+            if (AnimationStep == 2 + 1) {
+                AnimationStep = 0;
+            }
+            return AnimationStep;
+        }
     }
 
     struct Tile

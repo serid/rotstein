@@ -36,17 +36,23 @@ namespace rotstein
                 {
                     case Keyboard.Key.W:
                         Game.Player.Position.Y -= (uint)shift;
+                        Game.Player.NextAnimationStep();
                         view.Move(new Vector2f(0f, -shift));
                         break;
                     case Keyboard.Key.A:
+                        Game.Player.Direction = false;
+                        Game.Player.NextAnimationStep();
                         Game.Player.Position.X -= (uint)shift;
                         view.Move(new Vector2f(-shift, 0f));
                         break;
                     case Keyboard.Key.S:
                         Game.Player.Position.Y += (uint)shift;
+                        Game.Player.NextAnimationStep();
                         view.Move(new Vector2f(0f, shift));
                         break;
                     case Keyboard.Key.D:
+                        Game.Player.Direction = true;
+                        Game.Player.NextAnimationStep();
                         Game.Player.Position.X += (uint)shift;
                         view.Move(new Vector2f(shift, 0f));
                         break;
@@ -116,10 +122,12 @@ namespace rotstein
 
         void DrawPlayer()
         {
+            var shift = (Game.Player.AnimationStep + (!Game.Player.Direction ? 0 : 3)) * TEXTURE_SIZE;
             var sprite = new Sprite(Atlas, new IntRect(
-                0 * TEXTURE_SIZE,
+                shift + 0 * TEXTURE_SIZE,
                 1 * TEXTURE_SIZE,
-                TEXTURE_SIZE, 2 * TEXTURE_SIZE));
+                TEXTURE_SIZE,
+                2 * TEXTURE_SIZE));
             sprite.Position = new Vector2f(Game.Player.Position.X, Game.Player.Position.Y);
             
             Window.Draw(sprite);
