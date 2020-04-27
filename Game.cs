@@ -2,13 +2,17 @@ using SFML.System;
 namespace rotstein
 {
     class Game {
-        public Vector2u Player;
+        public Player Player;
         public Tile[,] Tiles;
         
         public Game(uint playground_size)
         {
             Tiles = new Tile[playground_size, playground_size];
         }
+    }
+
+    struct Player {
+        public Vector2u Position;
     }
 
     struct Tile
