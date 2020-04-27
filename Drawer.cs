@@ -9,7 +9,7 @@ namespace rotstein
         static readonly uint PLAYGROUND_SIZE = 10;
         static readonly int SCALE = 6; // Game scale
         static readonly int TEXTURE_SIZE = 16;
-        static readonly Vector2u WINDOW_SIZE = new Vector2u(1600, 900);
+        Vector2u WindowSize = new Vector2u(1600, 900);
         
         Texture Atlas;
         RenderWindow Window;
@@ -18,9 +18,16 @@ namespace rotstein
         public Drawer()
         {
             Atlas = new Texture("rsc/atlas.png");
-            Window = new RenderWindow(new VideoMode(WINDOW_SIZE.X, WINDOW_SIZE.Y), "Rotstein",
-                Styles.Titlebar | Styles.Close);
+            Window = new RenderWindow(new VideoMode(WindowSize.X, WindowSize.Y), "Rotstein",
+                Styles.Titlebar | Styles.Close | Styles.Resize);
             Window.Closed += (_, __) => Window.Close();
+
+            Window.Resized += (_, args) => {
+                WindowSize = new Vector2u(args.Width, args.Height);
+                View view = Window.GetView();
+                view.Size = new Vector2f(WindowSize.X / SCALE, WindowSize.Y / SCALE);
+                Window.SetView(view);
+            };
 
             Window.KeyPressed += (_, args) => {
                 View view = Window.GetView();
@@ -50,7 +57,7 @@ namespace rotstein
             Game = new Game(PLAYGROUND_SIZE);
 
             Window.SetView(new View(new Vector2f(Game.Player.X + TEXTURE_SIZE / 2, Game.Player.Y + 2 * TEXTURE_SIZE / 2), // Player center
-            new Vector2f(WINDOW_SIZE.X  / SCALE, WINDOW_SIZE.Y / SCALE)));
+            new Vector2f(WindowSize.X  / SCALE, WindowSize.Y / SCALE)));
 
             for (int i = 0; i < PLAYGROUND_SIZE; i++)
             {
