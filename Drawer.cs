@@ -9,12 +9,12 @@ namespace rotstein
         static readonly uint PLAYGROUND_SIZE = 10;
         static readonly int SCALE = 6; // Game scale
         static readonly int TEXTURE_SIZE = 16;
+
         Vector2u WindowSize = new Vector2u(1600, 900);
-        
         Texture Atlas;
         RenderWindow Window;
         Game Game;
-        
+
         public Drawer()
         {
             Atlas = new Texture("rsc/atlas.png");
@@ -22,14 +22,16 @@ namespace rotstein
                 Styles.Titlebar | Styles.Close | Styles.Resize);
             Window.Closed += (_, __) => Window.Close();
 
-            Window.Resized += (_, args) => {
+            Window.Resized += (_, args) =>
+            {
                 WindowSize = new Vector2u(args.Width, args.Height);
                 View view = Window.GetView();
                 view.Size = new Vector2f(WindowSize.X / SCALE, WindowSize.Y / SCALE);
                 Window.SetView(view);
             };
 
-            Window.KeyPressed += (_, args) => {
+            Window.KeyPressed += (_, args) =>
+            {
                 View view = Window.GetView();
                 int shift = TEXTURE_SIZE;
                 switch (args.Code)
@@ -60,31 +62,32 @@ namespace rotstein
                 Window.SetView(view);
             };
 
-            Window.MouseButtonPressed += (_, args) => {
+            Window.MouseButtonPressed += (_, args) =>
+            {
                 //System.Console.WriteLine(args);
                 Vector2u tile_coord = new Vector2u(
-                    (uint)System.Math.Ceiling((float)((args.X - WindowSize.X/2) / SCALE + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
-                    (uint)System.Math.Ceiling((float)((args.Y - WindowSize.Y/2) / SCALE + Game.Player.Position.Y) / (float)(TEXTURE_SIZE)));
-                Game.Tiles[tile_coord.X,tile_coord.Y] = new Tile(TileKind.Iron);
+                    (uint)System.Math.Ceiling((float)((args.X - WindowSize.X / 2) / SCALE + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
+                    (uint)System.Math.Ceiling((float)((args.Y - WindowSize.Y / 2) / SCALE + Game.Player.Position.Y) / (float)(TEXTURE_SIZE)));
+                Game.Tiles[tile_coord.X, tile_coord.Y] = new Tile(TileKind.Iron);
             };
 
             Game = new Game(PLAYGROUND_SIZE);
 
             Window.SetView(new View(new Vector2f(Game.Player.Position.X + TEXTURE_SIZE / 2, Game.Player.Position.Y + 2 * TEXTURE_SIZE / 2), // Player center
-            new Vector2f(WindowSize.X  / SCALE, WindowSize.Y / SCALE)));
+            new Vector2f(WindowSize.X / SCALE, WindowSize.Y / SCALE)));
 
             for (int i = 0; i < PLAYGROUND_SIZE; i++)
             {
                 for (int j = 0; j < PLAYGROUND_SIZE; j++)
                 {
-                    Game.Tiles[i,j] = new Tile(TileKind.Planks);
+                    Game.Tiles[i, j] = new Tile(TileKind.Planks);
                 }
             }
         }
 
         public void Loop()
         {
-            
+
             //Console.WriteLine(tiles[0,0].kind);
 
             while (Window.IsOpen)
@@ -95,7 +98,7 @@ namespace rotstein
                 {
                     for (int j = 0; j < PLAYGROUND_SIZE; j++)
                     {
-                        DrawTile(i, j, Game.Tiles[i,j]);
+                        DrawTile(i, j, Game.Tiles[i, j]);
                     }
                 }
                 DrawPlayer();
@@ -103,12 +106,12 @@ namespace rotstein
                 System.Threading.Thread.Sleep(15);
             }
         }
-        
+
         void DrawTile(int x, int y, Tile tile)
         {
             if (tile.Kind == 0)
                 return;
-            
+
 
             int texture_index = (int)tile.Kind - 1;
             var sprite = new Sprite(Atlas, new IntRect(
@@ -129,7 +132,7 @@ namespace rotstein
                 TEXTURE_SIZE,
                 2 * TEXTURE_SIZE));
             sprite.Position = new Vector2f(Game.Player.Position.X, Game.Player.Position.Y);
-            
+
             Window.Draw(sprite);
         }
     }
