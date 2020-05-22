@@ -1,8 +1,9 @@
+using System.Linq;
+
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
 
-using System.Linq;
 namespace rotstein
 {
     class Drawer
@@ -46,7 +47,10 @@ namespace rotstein
                             case Keyboard.Key.Tilde:
                                 InpState = InputState.Chat;
                                 break;
-                            default:
+                            case Keyboard.Key.W:
+                            case Keyboard.Key.A:
+                            case Keyboard.Key.S:
+                            case Keyboard.Key.D:
                                 View view = Window.GetView();
                                 int shift = TEXTURE_SIZE;
                                 switch (args.Code)
@@ -146,9 +150,6 @@ namespace rotstein
 
         public void Loop()
         {
-
-            //Console.WriteLine(tiles[0,0].kind);
-
             while (Window.IsOpen)
             {
                 Window.DispatchEvents();
@@ -157,7 +158,7 @@ namespace rotstein
                 {
                     for (int j = 0; j < PLAYGROUND_SIZE; j++)
                     {
-                        DrawTile(i, j, Game.Tiles[i, j]);
+                        DrawTile(new Vector2f(i * TEXTURE_SIZE, j * TEXTURE_SIZE), Game.Tiles[i, j]);
                     }
                 }
                 DrawPlayer();
@@ -168,7 +169,7 @@ namespace rotstein
             }
         }
 
-        void DrawTile(int x, int y, Tile tile)
+        void DrawTile(Vector2f pos, Tile tile)
         {
             if (tile.Kind == 0)
                 return;
@@ -179,7 +180,7 @@ namespace rotstein
                 texture_index * TEXTURE_SIZE,
                 0,
                 TEXTURE_SIZE, TEXTURE_SIZE));
-            sprite.Position = new Vector2f(x * TEXTURE_SIZE, y * TEXTURE_SIZE);
+            sprite.Position = pos;
 
             Window.Draw(sprite);
         }
