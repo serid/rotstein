@@ -3,7 +3,7 @@ namespace rotstein
 {
     class Game
     {
-        public Player Player;
+        public Player Player = new Player();
         public Tile[,] Tiles;
 
         public Game(uint playground_size)
@@ -12,11 +12,21 @@ namespace rotstein
         }
     }
 
-    struct Player
+    class Player
     {
         public Vector2u Position;
         public byte AnimationStep;
         public bool Direction; // false is left, true is right
+        public Hotbar Hotbar;
+
+        public Player()
+        {
+            Hotbar.Tiles = new TileKind[10];
+            Hotbar.Tiles[0] = TileKind.Iron;
+            Hotbar.Tiles[1] = TileKind.Planks;
+            Hotbar.Tiles[2] = TileKind.RedstoneBlock;
+            Hotbar.Tiles[3] = TileKind.Stone;
+        }
 
         public byte NextAnimationStep()
         {
@@ -27,6 +37,14 @@ namespace rotstein
             }
             return AnimationStep;
         }
+    }
+
+    struct Hotbar
+    {
+        public TileKind[] Tiles;
+        public uint Index; // Which item from hotbar is picked
+
+        public TileKind IndexTile => Tiles[Index];
     }
 
     struct Tile
