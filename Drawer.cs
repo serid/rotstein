@@ -8,7 +8,7 @@ namespace rotstein
 {
     class Drawer
     {
-        static readonly uint PLAYGROUND_SIZE = 10;
+        static readonly uint PLAYGROUND_SIZE = 20;
         static readonly int SCALE = 6; // Game scale
         static readonly int TEXTURE_SIZE = 16;
 
@@ -48,10 +48,13 @@ namespace rotstein
 
             for (int i = 0; i < PLAYGROUND_SIZE; i++)
             {
-                for (int j = 0; j < PLAYGROUND_SIZE; j++)
-                {
-                    Game.Tiles[i, j] = new Tile(Tile.TKind.Planks);
-                }
+                Game.Tiles[0, i] = new Tile(Tile.TKind.Iron);
+                Game.Tiles[PLAYGROUND_SIZE - 1, i] = new Tile(Tile.TKind.Iron);
+            }
+            for (int i = 1; i < PLAYGROUND_SIZE - 1; i++)
+            {
+                Game.Tiles[i, 0] = new Tile(Tile.TKind.Iron);
+                Game.Tiles[i, PLAYGROUND_SIZE - 1] = new Tile(Tile.TKind.Iron);
             }
         }
 
@@ -60,7 +63,7 @@ namespace rotstein
             while (Window.IsOpen)
             {
                 Window.DispatchEvents();
-                Window.Clear(Color.White);
+                Window.Clear(new Color(50, 100, 0));
                 for (int i = 0; i < PLAYGROUND_SIZE; i++)
                 {
                     for (int j = 0; j < PLAYGROUND_SIZE; j++)
