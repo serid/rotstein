@@ -6,9 +6,14 @@ namespace rotstein
         public TPlayer Player = new TPlayer();
         public Tile[,] Tiles;
 
+        bool[,] Prealloc_UpToDateNodes;
+        bool[,] Prealloc_RedCheckedNodes;
+
         public Game(uint playground_size)
         {
             Tiles = new Tile[playground_size, playground_size];
+            Prealloc_UpToDateNodes = new bool[Tiles.GetLength(0), Tiles.GetLength(1)];
+            Prealloc_RedCheckedNodes = new bool[Tiles.GetLength(0), Tiles.GetLength(1)];
         }
 
         public void PlaceTile(uint x, uint y, Tile tile)
@@ -16,15 +21,17 @@ namespace rotstein
             var oldTileKind = Tiles[x, y].Kind;
             Tiles[x, y] = tile;
 
+            System.Array.Clear(Prealloc_UpToDateNodes, 0, Prealloc_UpToDateNodes.Length); // Clear preallocated array before using it
+
             switch (oldTileKind)
             { // Update neigbors if old tile was important
                 case Tile.TKind.InactiveRedstone:
                 case Tile.TKind.ActiveRedstone:
                 case Tile.TKind.RedstoneBlock:
-                    UpdateTile(x, y - 1, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]);
-                    UpdateTile(x - 1, y, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]);
-                    UpdateTile(x, y + 1, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]);
-                    UpdateTile(x + 1, y, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]);
+                    UpdateTile(x, y - 1, Prealloc_UpToDateNodes);
+                    UpdateTile(x - 1, y, Prealloc_UpToDateNodes);
+                    UpdateTile(x, y + 1, Prealloc_UpToDateNodes);
+                    UpdateTile(x + 1, y, Prealloc_UpToDateNodes);
                     break;
             }
 
@@ -33,13 +40,13 @@ namespace rotstein
               // Update neigbors if new tile is important
                 case Tile.TKind.InactiveRedstone:
                 case Tile.TKind.ActiveRedstone:
-                    UpdateTile(x, y, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]); // TODO: reuse old allocation
+                    UpdateTile(x, y, Prealloc_UpToDateNodes);
                     break;
                 case Tile.TKind.RedstoneBlock:
-                    UpdateTile(x, y - 1, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]);
-                    UpdateTile(x - 1, y, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]);
-                    UpdateTile(x, y + 1, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]);
-                    UpdateTile(x + 1, y, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]);
+                    UpdateTile(x, y - 1, Prealloc_UpToDateNodes);
+                    UpdateTile(x - 1, y, Prealloc_UpToDateNodes);
+                    UpdateTile(x, y + 1, Prealloc_UpToDateNodes);
+                    UpdateTile(x + 1, y, Prealloc_UpToDateNodes);
                     break;
             }
         }
@@ -51,10 +58,12 @@ namespace rotstein
 
             upToDateNodes[x, y] = true;
 
+            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+
             switch (Tiles[x, y].Kind)
             {
                 case Tile.TKind.InactiveRedstone:
-                    if (isRedReachable(x, y, new bool[Tiles.GetLength(0), Tiles.GetLength(1)])) // TODO: reuse old allocation
+                    if (isRedReachable(x, y, Prealloc_RedCheckedNodes))
                     {
                         Tiles[x, y].Kind = Tile.TKind.ActiveRedstone;
 
@@ -65,7 +74,7 @@ namespace rotstein
                     }
                     break;
                 case Tile.TKind.ActiveRedstone:
-                    if (!(isRedReachable(x, y, new bool[Tiles.GetLength(0), Tiles.GetLength(1)]))) // TODO: reuse old allocation
+                    if (!(isRedReachable(x, y, Prealloc_RedCheckedNodes)))
                     {
                         Tiles[x, y].Kind = Tile.TKind.InactiveRedstone;
 
