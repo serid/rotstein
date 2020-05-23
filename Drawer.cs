@@ -15,7 +15,7 @@ namespace rotstein
         Vector2u WindowSize = new Vector2u(1600, 900); // TODO: change type to Vector2f and remove `* SCALE` everywhere
         Texture Atlas;
         RenderWindow Window;
-        InputState InpState = InputState.None;
+        TInputState InputState = TInputState.None;
         string Chatbox = "";
         Font BasicFont = new Font("SourceCodePro-Regular.otf");
         // Font BasicFont = new Font("Cantarell-Regular.otf");
@@ -50,7 +50,7 @@ namespace rotstein
             {
                 for (int j = 0; j < PLAYGROUND_SIZE; j++)
                 {
-                    Game.Tiles[i, j] = new Tile(TileKind.Planks);
+                    Game.Tiles[i, j] = new Tile(Tile.TKind.Planks);
                 }
             }
         }
@@ -114,7 +114,7 @@ namespace rotstein
                 center.X - WindowSize.X / SCALE / 2,
                 center.Y - WindowSize.Y / SCALE / 2);
 
-            if (InpState == InputState.Chat)
+            if (InputState == TInputState.Chat)
             {
                 RectangleShape chat_background = new RectangleShape(new Vector2f(100, 10));
                 chat_background.Position = window_zero + new Vector2f(0, WindowSize.Y / SCALE / 4 * 3);
@@ -148,13 +148,13 @@ namespace rotstein
 
         void HandleKeyPress(object _, SFML.Window.KeyEventArgs args)
         {
-            switch (InpState)
+            switch (InputState)
             {
-                case InputState.None:
+                case TInputState.None:
                     switch (args.Code)
                     {
                         case Keyboard.Key.Tilde:
-                            InpState = InputState.Chat;
+                            InputState = TInputState.Chat;
                             break;
                         case Keyboard.Key.Num1:
                             Game.Player.Hotbar.Index = 0;
@@ -218,11 +218,11 @@ namespace rotstein
                             break;
                     }
                     break;
-                case InputState.Chat:
+                case TInputState.Chat:
                     switch (args.Code)
                     {
                         case Keyboard.Key.Tilde:
-                            InpState = InputState.None;
+                            InputState = TInputState.None;
                             break;
                         case Keyboard.Key.Backspace:
                             if (Chatbox.Length > 0)
@@ -233,7 +233,7 @@ namespace rotstein
                         case Keyboard.Key.Enter:
                             Chatbox = "";
                             // TODO: execute command
-                            InpState = InputState.None;
+                            InputState = TInputState.None;
                             break;
                     }
                     // Chatbox input is handled in TextEntered event
@@ -245,12 +245,12 @@ namespace rotstein
 
         void HandleTextEnter(object _, SFML.Window.TextEventArgs args)
         {
-            switch (InpState)
+            switch (InputState)
             {
-                case InputState.None:
+                case TInputState.None:
                     // Game input is handled in KeyPressed event
                     break;
-                case InputState.Chat:
+                case TInputState.Chat:
                     if (args.Unicode.Any(c => char.IsControl(c) | "`~".Contains(c)))
                     {
                         break;
@@ -270,7 +270,7 @@ namespace rotstein
             Game.Tiles[tile_coord.X, tile_coord.Y] = new Tile(Game.Player.Hotbar.IndexTile); // Place a tile
         }
 
-        enum InputState
+        enum TInputState
         {
             None,
             Chat,
