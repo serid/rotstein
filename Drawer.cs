@@ -37,129 +37,9 @@ namespace rotstein
                 Window.SetView(view);
             };
 
-            Window.KeyPressed += (_, args) =>
-            {
-                switch (InpState)
-                {
-                    case InputState.None:
-                        switch (args.Code)
-                        {
-                            case Keyboard.Key.Tilde:
-                                InpState = InputState.Chat;
-                                break;
-                            case Keyboard.Key.Num1:
-                                Game.Player.Hotbar.Index = 0;
-                                break;
-                            case Keyboard.Key.Num2:
-                                Game.Player.Hotbar.Index = 1;
-                                break;
-                            case Keyboard.Key.Num3:
-                                Game.Player.Hotbar.Index = 2;
-                                break;
-                            case Keyboard.Key.Num4:
-                                Game.Player.Hotbar.Index = 3;
-                                break;
-                            case Keyboard.Key.Num5:
-                                Game.Player.Hotbar.Index = 4;
-                                break;
-                            case Keyboard.Key.Num6:
-                                Game.Player.Hotbar.Index = 5;
-                                break;
-                            case Keyboard.Key.Num7:
-                                Game.Player.Hotbar.Index = 6;
-                                break;
-                            case Keyboard.Key.Num8:
-                                Game.Player.Hotbar.Index = 7;
-                                break;
-                            case Keyboard.Key.Num9:
-                                Game.Player.Hotbar.Index = 8;
-                                break;
-                            case Keyboard.Key.W:
-                            case Keyboard.Key.A:
-                            case Keyboard.Key.S:
-                            case Keyboard.Key.D:
-                                View view = Window.GetView();
-                                int shift = TEXTURE_SIZE;
-                                switch (args.Code)
-                                {
-                                    case Keyboard.Key.W:
-                                        Game.Player.Position.Y -= (uint)shift;
-                                        Game.Player.NextAnimationStep();
-                                        view.Move(new Vector2f(0f, -shift));
-                                        break;
-                                    case Keyboard.Key.A:
-                                        Game.Player.Direction = false;
-                                        Game.Player.NextAnimationStep();
-                                        Game.Player.Position.X -= (uint)shift;
-                                        view.Move(new Vector2f(-shift, 0f));
-                                        break;
-                                    case Keyboard.Key.S:
-                                        Game.Player.Position.Y += (uint)shift;
-                                        Game.Player.NextAnimationStep();
-                                        view.Move(new Vector2f(0f, shift));
-                                        break;
-                                    case Keyboard.Key.D:
-                                        Game.Player.Direction = true;
-                                        Game.Player.NextAnimationStep();
-                                        Game.Player.Position.X += (uint)shift;
-                                        view.Move(new Vector2f(shift, 0f));
-                                        break;
-                                }
-                                Window.SetView(view);
-                                break;
-                        }
-                        break;
-                    case InputState.Chat:
-                        switch (args.Code)
-                        {
-                            case Keyboard.Key.Tilde:
-                                InpState = InputState.None;
-                                break;
-                            case Keyboard.Key.Backspace:
-                                if (Chatbox.Length > 0)
-                                {
-                                    Chatbox = Chatbox.Remove(Chatbox.Length - 1);
-                                }
-                                break;
-                            case Keyboard.Key.Enter:
-                                Chatbox = "";
-                                // TODO: execute command
-                                InpState = InputState.None;
-                                break;
-                        }
-                        // Chatbox input is handled in TextEntered event
-                        break;
-                    default:
-                        throw new System.Exception("Unhandled input state.");
-                }
-            };
-
-            Window.TextEntered += (_, args) =>
-            {
-                switch (InpState)
-                {
-                    case InputState.None:
-                        // Game input is handled in KeyPressed event
-                        break;
-                    case InputState.Chat:
-                        if (args.Unicode.Any(c => char.IsControl(c) | "`~".Contains(c)))
-                        {
-                            break;
-                        }
-                        Chatbox += args.Unicode;
-                        break;
-                    default:
-                        throw new System.Exception("Unhandled input state.");
-                }
-            };
-
-            Window.MouseButtonPressed += (_, args) =>
-            {
-                Vector2u tile_coord = new Vector2u(
-                    (uint)System.Math.Ceiling((float)((args.X - WindowSize.X / 2) / SCALE + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
-                    (uint)System.Math.Ceiling((float)((args.Y - WindowSize.Y / 2) / SCALE + Game.Player.Position.Y) / (float)(TEXTURE_SIZE)));
-                Game.Tiles[tile_coord.X, tile_coord.Y] = new Tile(Game.Player.Hotbar.IndexTile); // Place a tile
-            };
+            Window.KeyPressed += HandleKeyPress;
+            Window.TextEntered += HandleTextEnter;
+            Window.MouseButtonPressed += HandleMouseButtonPress;
 
             Game = new Game(PLAYGROUND_SIZE);
 
@@ -264,6 +144,130 @@ namespace rotstein
                     new Tile(Game.Player.Hotbar.Tiles[i]));
                 }
             }
+        }
+
+        void HandleKeyPress(object _, SFML.Window.KeyEventArgs args)
+        {
+            switch (InpState)
+            {
+                case InputState.None:
+                    switch (args.Code)
+                    {
+                        case Keyboard.Key.Tilde:
+                            InpState = InputState.Chat;
+                            break;
+                        case Keyboard.Key.Num1:
+                            Game.Player.Hotbar.Index = 0;
+                            break;
+                        case Keyboard.Key.Num2:
+                            Game.Player.Hotbar.Index = 1;
+                            break;
+                        case Keyboard.Key.Num3:
+                            Game.Player.Hotbar.Index = 2;
+                            break;
+                        case Keyboard.Key.Num4:
+                            Game.Player.Hotbar.Index = 3;
+                            break;
+                        case Keyboard.Key.Num5:
+                            Game.Player.Hotbar.Index = 4;
+                            break;
+                        case Keyboard.Key.Num6:
+                            Game.Player.Hotbar.Index = 5;
+                            break;
+                        case Keyboard.Key.Num7:
+                            Game.Player.Hotbar.Index = 6;
+                            break;
+                        case Keyboard.Key.Num8:
+                            Game.Player.Hotbar.Index = 7;
+                            break;
+                        case Keyboard.Key.Num9:
+                            Game.Player.Hotbar.Index = 8;
+                            break;
+                        case Keyboard.Key.W:
+                        case Keyboard.Key.A:
+                        case Keyboard.Key.S:
+                        case Keyboard.Key.D:
+                            View view = Window.GetView();
+                            int shift = TEXTURE_SIZE / 2;
+                            switch (args.Code)
+                            {
+                                case Keyboard.Key.W:
+                                    Game.Player.Position.Y -= (uint)shift;
+                                    Game.Player.NextAnimationStep();
+                                    view.Move(new Vector2f(0f, -shift));
+                                    break;
+                                case Keyboard.Key.A:
+                                    Game.Player.Direction = false;
+                                    Game.Player.NextAnimationStep();
+                                    Game.Player.Position.X -= (uint)shift;
+                                    view.Move(new Vector2f(-shift, 0f));
+                                    break;
+                                case Keyboard.Key.S:
+                                    Game.Player.Position.Y += (uint)shift;
+                                    Game.Player.NextAnimationStep();
+                                    view.Move(new Vector2f(0f, shift));
+                                    break;
+                                case Keyboard.Key.D:
+                                    Game.Player.Direction = true;
+                                    Game.Player.NextAnimationStep();
+                                    Game.Player.Position.X += (uint)shift;
+                                    view.Move(new Vector2f(shift, 0f));
+                                    break;
+                            }
+                            Window.SetView(view);
+                            break;
+                    }
+                    break;
+                case InputState.Chat:
+                    switch (args.Code)
+                    {
+                        case Keyboard.Key.Tilde:
+                            InpState = InputState.None;
+                            break;
+                        case Keyboard.Key.Backspace:
+                            if (Chatbox.Length > 0)
+                            {
+                                Chatbox = Chatbox.Remove(Chatbox.Length - 1);
+                            }
+                            break;
+                        case Keyboard.Key.Enter:
+                            Chatbox = "";
+                            // TODO: execute command
+                            InpState = InputState.None;
+                            break;
+                    }
+                    // Chatbox input is handled in TextEntered event
+                    break;
+                default:
+                    throw new System.Exception("Unhandled input state.");
+            }
+        }
+
+        void HandleTextEnter(object _, SFML.Window.TextEventArgs args)
+        {
+            switch (InpState)
+            {
+                case InputState.None:
+                    // Game input is handled in KeyPressed event
+                    break;
+                case InputState.Chat:
+                    if (args.Unicode.Any(c => char.IsControl(c) | "`~".Contains(c)))
+                    {
+                        break;
+                    }
+                    Chatbox += args.Unicode;
+                    break;
+                default:
+                    throw new System.Exception("Unhandled input state.");
+            }
+        }
+
+        void HandleMouseButtonPress(object _, SFML.Window.MouseButtonEventArgs args)
+        {
+            Vector2u tile_coord = new Vector2u(
+                (uint)System.Math.Ceiling((float)((args.X - WindowSize.X / 2) / SCALE + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
+                (uint)System.Math.Ceiling((float)((args.Y - WindowSize.Y / 2) / SCALE + Game.Player.Position.Y) / (float)(TEXTURE_SIZE)));
+            Game.Tiles[tile_coord.X, tile_coord.Y] = new Tile(Game.Player.Hotbar.IndexTile); // Place a tile
         }
 
         enum InputState
