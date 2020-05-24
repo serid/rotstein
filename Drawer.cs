@@ -38,8 +38,10 @@ namespace rotstein
             };
 
             Window.KeyPressed += HandleKeyPress;
+            Window.KeyReleased += HandleKeyRelease;
             Window.TextEntered += HandleTextEnter;
             Window.MouseButtonPressed += HandleMouseButtonPress;
+            Window.SetKeyRepeatEnabled(false);
 
             Game = new Game(PLAYGROUND_SIZE);
 
@@ -63,6 +65,16 @@ namespace rotstein
             while (Window.IsOpen)
             {
                 Window.DispatchEvents();
+
+                // TODO: move to a function
+
+                View view = Window.GetView();
+                Game.Player.Position.X = (uint)(Game.Player.Position.X + Game.Player.Velocity.X);
+                Game.Player.Position.Y = (uint)(Game.Player.Position.Y + Game.Player.Velocity.Y);
+                view.Move(new Vector2f(Game.Player.Velocity.X, Game.Player.Velocity.Y));
+                Window.SetView(view);
+
+
                 Window.Clear(new Color(50, 100, 0));
                 for (int i = 0; i < PLAYGROUND_SIZE; i++)
                 {
@@ -97,7 +109,7 @@ namespace rotstein
 
         void DrawPlayer()
         {
-            var shift = (Game.Player.AnimationStep + (!Game.Player.Direction ? 0 : 3)) * TEXTURE_SIZE;
+            var shift = (Game.Player.AnimationStep + (!Game.Player.SpriteDirection ? 0 : 3)) * TEXTURE_SIZE;
             var sprite = new Sprite(Atlas, new IntRect(
                 shift + 0 * TEXTURE_SIZE,
                 1 * TEXTURE_SIZE,
@@ -190,34 +202,23 @@ namespace rotstein
                         case Keyboard.Key.A:
                         case Keyboard.Key.S:
                         case Keyboard.Key.D:
-                            View view = Window.GetView();
-                            int shift = TEXTURE_SIZE / 2;
                             switch (args.Code)
                             {
                                 case Keyboard.Key.W:
-                                    Game.Player.Position.Y -= (uint)shift;
-                                    Game.Player.NextAnimationStep();
-                                    view.Move(new Vector2f(0f, -shift));
+                                    Game.Player.Velocity.Y = -1;
                                     break;
                                 case Keyboard.Key.A:
-                                    Game.Player.Direction = false;
-                                    Game.Player.NextAnimationStep();
-                                    Game.Player.Position.X -= (uint)shift;
-                                    view.Move(new Vector2f(-shift, 0f));
+                                    Game.Player.Velocity.X = -1;
+                                    Game.Player.SpriteDirection = false;
                                     break;
                                 case Keyboard.Key.S:
-                                    Game.Player.Position.Y += (uint)shift;
-                                    Game.Player.NextAnimationStep();
-                                    view.Move(new Vector2f(0f, shift));
+                                    Game.Player.Velocity.Y = +1;
                                     break;
                                 case Keyboard.Key.D:
-                                    Game.Player.Direction = true;
-                                    Game.Player.NextAnimationStep();
-                                    Game.Player.Position.X += (uint)shift;
-                                    view.Move(new Vector2f(shift, 0f));
+                                    Game.Player.Velocity.X = +1;
+                                    Game.Player.SpriteDirection = true;
                                     break;
                             }
-                            Window.SetView(view);
                             break;
                     }
                     break;
@@ -241,8 +242,26 @@ namespace rotstein
                     }
                     // Chatbox input is handled in TextEntered event
                     break;
-                default:
-                    throw new System.Exception("Unhandled input state.");
+            }
+        }
+
+        void HandleKeyRelease(object _, SFML.Window.KeyEventArgs args)
+        {
+            switch (InputState)
+            {
+                case TInputState.None:
+                    switch (args.Code)
+                    {
+                        case Keyboard.Key.W:
+                        case Keyboard.Key.S:
+                            Game.Player.Velocity.Y = 0;
+                            break;
+                        case Keyboard.Key.A:
+                        case Keyboard.Key.D:
+                            Game.Player.Velocity.X = 0;
+                            break;
+                    }
+                    break;
             }
         }
 
@@ -250,9 +269,6 @@ namespace rotstein
         {
             switch (InputState)
             {
-                case TInputState.None:
-                    // Game input is handled in KeyPressed event
-                    break;
                 case TInputState.Chat:
                     if (args.Unicode.Any(c => char.IsControl(c) | "`~".Contains(c)))
                     {
@@ -260,8 +276,6 @@ namespace rotstein
                     }
                     Chatbox += args.Unicode;
                     break;
-                default:
-                    throw new System.Exception("Unhandled input state.");
             }
         }
 
