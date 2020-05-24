@@ -124,8 +124,8 @@ namespace rotstein
 
         public class TPlayer
         {
-            public Vector2u Position;
-            public Vector2i Velocity;
+            public Vector2f Position;
+            public Vector2f Velocity;
             public byte AnimationStep;
             public bool SpriteDirection; // false is left, true is right
             public THotbar Hotbar;

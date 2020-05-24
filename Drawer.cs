@@ -42,6 +42,7 @@ namespace rotstein
             Window.TextEntered += HandleTextEnter;
             Window.MouseButtonPressed += HandleMouseButtonPress;
             Window.SetKeyRepeatEnabled(false);
+            Window.SetVerticalSyncEnabled(true);
 
             Game = new Game(PLAYGROUND_SIZE);
 
@@ -62,16 +63,20 @@ namespace rotstein
 
         public void Loop()
         {
+            var clock = new Clock();
             while (Window.IsOpen)
             {
                 Window.DispatchEvents();
 
                 // TODO: move to a function
+                
+                var elapsed = clock.ElapsedTime.AsMilliseconds() / 1000f;
+                clock.Restart();
 
                 View view = Window.GetView();
-                Game.Player.Position.X = (uint)(Game.Player.Position.X + Game.Player.Velocity.X);
-                Game.Player.Position.Y = (uint)(Game.Player.Position.Y + Game.Player.Velocity.Y);
-                view.Move(new Vector2f(Game.Player.Velocity.X, Game.Player.Velocity.Y));
+                Game.Player.Position.X += Game.Player.Velocity.X * elapsed;
+                Game.Player.Position.Y += Game.Player.Velocity.Y * elapsed;
+                view.Move(new Vector2f(Game.Player.Velocity.X * elapsed, Game.Player.Velocity.Y * elapsed));
                 Window.SetView(view);
 
 
@@ -87,8 +92,8 @@ namespace rotstein
                 DrawGui();
 
                 Window.Display();
-                System.Threading.Thread.Sleep(15);
             }
+            clock.Dispose();
         }
 
         void DrawTile(Vector2f pos, Tile tile)
@@ -205,17 +210,17 @@ namespace rotstein
                             switch (args.Code)
                             {
                                 case Keyboard.Key.W:
-                                    Game.Player.Velocity.Y = -1;
+                                    Game.Player.Velocity.Y = -64;
                                     break;
                                 case Keyboard.Key.A:
-                                    Game.Player.Velocity.X = -1;
+                                    Game.Player.Velocity.X = -96;
                                     Game.Player.SpriteDirection = false;
                                     break;
                                 case Keyboard.Key.S:
-                                    Game.Player.Velocity.Y = +1;
+                                    Game.Player.Velocity.Y = +64;
                                     break;
                                 case Keyboard.Key.D:
-                                    Game.Player.Velocity.X = +1;
+                                    Game.Player.Velocity.X = +96;
                                     Game.Player.SpriteDirection = true;
                                     break;
                             }
