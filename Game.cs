@@ -3,8 +3,8 @@ namespace rotstein
 {
     class Game
     {
-        public TPlayer Player = new TPlayer();
-        public Tile[,] Tiles;
+        public TPlayer Player { get; } = new TPlayer();
+        public Tile[,] Tiles { get; }
 
         bool[,] Prealloc_UpToDateNodes;
         bool[,] Prealloc_RedCheckedNodes;
@@ -126,7 +126,7 @@ namespace rotstein
         {
             public Vector2f Position;
             public Vector2f Velocity;
-            public byte AnimationStep;
+            public byte AnimationStep { get; private set; }
             public bool SpriteDirection; // false is left, true is right
             public THotbar Hotbar;
 
