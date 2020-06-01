@@ -134,11 +134,13 @@ namespace rotstein
     {
         public Tile.TKind Kind;
         public uint Variant;
+        public byte Rotation;
 
         public Tile(Tile.TKind kind)
         {
             this.Kind = kind;
             this.Variant = 0;
+            this.Rotation = 0; // 0 = NORTH, 1 = EAST, 2 = SOUTH, 3 = WEST
         }
 
         public enum TKind

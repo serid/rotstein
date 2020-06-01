@@ -69,7 +69,7 @@ namespace rotstein
                 Window.DispatchEvents();
 
                 // TODO: move to a function
-                
+
                 var elapsed = clock.ElapsedTime.AsMilliseconds() / 1000f;
                 clock.Restart();
 
@@ -101,13 +101,30 @@ namespace rotstein
             if (tile.Kind == 0)
                 return;
 
+            switch (tile.Rotation)
+            {
+                case 0:
+                    break;
+                case 1:
+                    pos.X += TEXTURE_SIZE;
+                    break;
+                case 2:
+                    pos.X += TEXTURE_SIZE;
+                    pos.Y += TEXTURE_SIZE;
+                    break;
+                case 3:
+                    pos.Y += TEXTURE_SIZE;
+                    break;
+            }
 
             int texture_index = (int)tile.Kind - 1;
             var sprite = new Sprite(Atlas, new IntRect(
                 texture_index * TEXTURE_SIZE,
                 0 + (int)(tile.Variant) * TEXTURE_SIZE,
                 TEXTURE_SIZE, TEXTURE_SIZE));
+
             sprite.Position = pos;
+            sprite.Rotation = tile.Rotation * 90f;
 
             Window.Draw(sprite);
         }
