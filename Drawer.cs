@@ -105,7 +105,7 @@ namespace rotstein
             int texture_index = (int)tile.Kind - 1;
             var sprite = new Sprite(Atlas, new IntRect(
                 texture_index * TEXTURE_SIZE,
-                0,
+                0 + (int)(tile.Variant) * TEXTURE_SIZE,
                 TEXTURE_SIZE, TEXTURE_SIZE));
             sprite.Position = pos;
 
@@ -117,7 +117,7 @@ namespace rotstein
             var shift = (Game.Player.AnimationStep + (!Game.Player.SpriteDirection ? 0 : 3)) * TEXTURE_SIZE;
             var sprite = new Sprite(Atlas, new IntRect(
                 shift + 0 * TEXTURE_SIZE,
-                1 * TEXTURE_SIZE,
+                2 * TEXTURE_SIZE,
                 TEXTURE_SIZE,
                 2 * TEXTURE_SIZE));
             sprite.Position = new Vector2f(Game.Player.Position.X, Game.Player.Position.Y);

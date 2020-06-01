@@ -24,9 +24,8 @@ namespace rotstein
             System.Array.Clear(Prealloc_UpToDateNodes, 0, Prealloc_UpToDateNodes.Length); // Clear preallocated array before using it
 
             switch (oldTileKind)
-            { // Update neigbors if old tile was important
-                case Tile.TKind.InactiveRedstone:
-                case Tile.TKind.ActiveRedstone:
+            { // Update neighbors if old tile was important
+                case Tile.TKind.RedstoneWire:
                 case Tile.TKind.RedstoneBlock:
                     UpdateTile(x, y - 1, Prealloc_UpToDateNodes);
                     UpdateTile(x - 1, y, Prealloc_UpToDateNodes);
@@ -37,9 +36,8 @@ namespace rotstein
 
             switch (tile.Kind)
             { // Update self if new tile is dynamic
-              // Update neigbors if new tile is important
-                case Tile.TKind.InactiveRedstone:
-                case Tile.TKind.ActiveRedstone:
+              // Update neighbors if new tile is important
+                case Tile.TKind.RedstoneWire:
                     UpdateTile(x, y, Prealloc_UpToDateNodes);
                     break;
                 case Tile.TKind.RedstoneBlock:
@@ -62,27 +60,13 @@ namespace rotstein
 
             switch (Tiles[x, y].Kind)
             {
-                case Tile.TKind.InactiveRedstone:
-                    if (isRedReachable(x, y, Prealloc_RedCheckedNodes))
-                    {
-                        Tiles[x, y].Kind = Tile.TKind.ActiveRedstone;
+                case Tile.TKind.RedstoneWire:
+                    Tiles[x, y].Variant = isRedReachable(x, y, Prealloc_RedCheckedNodes) ? (uint)1 : (uint)0;
 
-                        UpdateTile(x, y - 1, upToDateNodes);
-                        UpdateTile(x - 1, y, upToDateNodes);
-                        UpdateTile(x, y + 1, upToDateNodes);
-                        UpdateTile(x + 1, y, upToDateNodes);
-                    }
-                    break;
-                case Tile.TKind.ActiveRedstone:
-                    if (!(isRedReachable(x, y, Prealloc_RedCheckedNodes)))
-                    {
-                        Tiles[x, y].Kind = Tile.TKind.InactiveRedstone;
-
-                        UpdateTile(x, y - 1, upToDateNodes);
-                        UpdateTile(x - 1, y, upToDateNodes);
-                        UpdateTile(x, y + 1, upToDateNodes);
-                        UpdateTile(x + 1, y, upToDateNodes);
-                    }
+                    UpdateTile(x, y - 1, upToDateNodes);
+                    UpdateTile(x - 1, y, upToDateNodes);
+                    UpdateTile(x, y + 1, upToDateNodes);
+                    UpdateTile(x + 1, y, upToDateNodes);
                     break;
             }
         }
@@ -98,25 +82,11 @@ namespace rotstein
             {
                 case Tile.TKind.RedstoneBlock:
                     return true;
-                case Tile.TKind.InactiveRedstone:
-                case Tile.TKind.ActiveRedstone:
+                case Tile.TKind.RedstoneWire:
                     return isRedReachable(x, y - 1, checkedNodes) ||
                     isRedReachable(x - 1, y, checkedNodes) ||
                     isRedReachable(x, y + 1, checkedNodes) ||
                     isRedReachable(x + 1, y, checkedNodes);
-                default:
-                    return false;
-            }
-        }
-
-        bool IsRedActive(ref Tile tile)
-        {
-            switch (tile.Kind)
-            {
-                case Tile.TKind.RedstoneBlock:
-                case Tile.TKind.ActiveRedstone:
-                    return true;
-
                 default:
                     return false;
             }
@@ -137,7 +107,7 @@ namespace rotstein
                 Hotbar.Tiles[1] = Tile.TKind.Stone;
                 Hotbar.Tiles[2] = Tile.TKind.Iron;
                 Hotbar.Tiles[3] = Tile.TKind.RedstoneBlock;
-                Hotbar.Tiles[4] = Tile.TKind.InactiveRedstone;
+                Hotbar.Tiles[4] = Tile.TKind.RedstoneWire;
             }
 
             public byte NextAnimationStep()
@@ -163,10 +133,12 @@ namespace rotstein
     struct Tile
     {
         public Tile.TKind Kind;
+        public uint Variant;
 
         public Tile(Tile.TKind kind)
         {
             this.Kind = kind;
+            this.Variant = 0;
         }
 
         public enum TKind
@@ -176,8 +148,7 @@ namespace rotstein
             Stone,
             Iron,
             RedstoneBlock,
-            InactiveRedstone,
-            ActiveRedstone,
+            RedstoneWire,
         }
     }
 }
