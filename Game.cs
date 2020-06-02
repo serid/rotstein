@@ -32,6 +32,9 @@ namespace rotstein
                     UpdateTile(x, y + 1, Prealloc_UpToDateNodes);
                     UpdateTile(x + 1, y, Prealloc_UpToDateNodes);
                     break;
+                case Tile.TKind.NotGate:
+                    UpdateTile(x, y - 1, Prealloc_UpToDateNodes); // TODO: implement rotation
+                    break;
             }
 
             switch (tile.Kind)
@@ -46,6 +49,10 @@ namespace rotstein
                     UpdateTile(x, y + 1, Prealloc_UpToDateNodes);
                     UpdateTile(x + 1, y, Prealloc_UpToDateNodes);
                     break;
+                case Tile.TKind.NotGate:
+                    UpdateTile(x, y, Prealloc_UpToDateNodes);
+                    UpdateTile(x, y - 1, Prealloc_UpToDateNodes); // TODO: implement rotation
+                    break;
             }
         }
 
@@ -58,20 +65,37 @@ namespace rotstein
 
             System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
 
+            uint old_activity;
+            uint new_activity;
             switch (Tiles[x, y].Kind)
             {
                 case Tile.TKind.RedstoneWire:
-                    Tiles[x, y].Variant = isRedReachable(x, y, Prealloc_RedCheckedNodes) ? (uint)1 : (uint)0;
+                    old_activity = Tiles[x, y].Variant;
+                    new_activity = isRedReachable(x, y, Tile.TDirection.NA, Prealloc_RedCheckedNodes) ? (uint)1 : (uint)0;
+                    Tiles[x, y].Variant = new_activity;
 
-                    UpdateTile(x, y - 1, upToDateNodes);
-                    UpdateTile(x - 1, y, upToDateNodes);
-                    UpdateTile(x, y + 1, upToDateNodes);
-                    UpdateTile(x + 1, y, upToDateNodes);
+                    if (old_activity != new_activity)
+                    {
+                        UpdateTile(x, y - 1, upToDateNodes);
+                        UpdateTile(x - 1, y, upToDateNodes);
+                        UpdateTile(x, y + 1, upToDateNodes);
+                        UpdateTile(x + 1, y, upToDateNodes);
+                    }
+                    break;
+                case Tile.TKind.NotGate:
+                    old_activity = Tiles[x, y].Variant;
+                    new_activity = (!IsRedActive(ref Tiles[x, y + 1], 0)) ? (uint)1 : (uint)0; // TODO: implement rotation
+                    Tiles[x, y].Variant = new_activity;
+
+                    if (old_activity != new_activity)
+                    {
+                        UpdateTile(x, y - 1, upToDateNodes); // TODO: implement rotation
+                    }
                     break;
             }
         }
 
-        bool isRedReachable(uint x, uint y, bool[,] checkedNodes)
+        bool isRedReachable(uint x, uint y, Tile.TDirection direction, bool[,] checkedNodes)
         {
             if (checkedNodes[x, y])
                 return false;
@@ -80,13 +104,27 @@ namespace rotstein
 
             switch (Tiles[x, y].Kind)
             {
+                case Tile.TKind.RedstoneWire:
+                    return isRedReachable(x, y - 1, Tile.TDirection.South, checkedNodes) ||
+                    isRedReachable(x - 1, y, Tile.TDirection.East, checkedNodes) ||
+                    isRedReachable(x, y + 1, Tile.TDirection.North, checkedNodes) ||
+                    isRedReachable(x + 1, y, Tile.TDirection.West, checkedNodes);
+                default:
+                    return IsRedActive(ref Tiles[x, y], direction);
+            }
+        }
+
+        bool IsRedActive(ref Tile tile, Tile.TDirection direction)
+        {
+            switch (tile.Kind)
+            {
                 case Tile.TKind.RedstoneBlock:
                     return true;
                 case Tile.TKind.RedstoneWire:
-                    return isRedReachable(x, y - 1, checkedNodes) ||
-                    isRedReachable(x - 1, y, checkedNodes) ||
-                    isRedReachable(x, y + 1, checkedNodes) ||
-                    isRedReachable(x + 1, y, checkedNodes);
+                    return (tile.Variant == 1);
+                case Tile.TKind.NotGate:
+                    return (tile.Direction == direction) && (tile.Variant == 1);
+
                 default:
                     return false;
             }
@@ -108,6 +146,9 @@ namespace rotstein
                 Hotbar.Tiles[2] = Tile.TKind.Iron;
                 Hotbar.Tiles[3] = Tile.TKind.RedstoneBlock;
                 Hotbar.Tiles[4] = Tile.TKind.RedstoneWire;
+                Hotbar.Tiles[5] = Tile.TKind.NotGate;
+                Hotbar.Tiles[6] = Tile.TKind.OrGate;
+                Hotbar.Tiles[7] = Tile.TKind.AndGate;
             }
 
             public byte NextAnimationStep()
@@ -134,13 +175,13 @@ namespace rotstein
     {
         public Tile.TKind Kind;
         public uint Variant;
-        public byte Rotation;
+        public TDirection Direction;
 
         public Tile(Tile.TKind kind)
         {
             this.Kind = kind;
             this.Variant = 0;
-            this.Rotation = 0; // 0 = NORTH, 1 = EAST, 2 = SOUTH, 3 = WEST
+            this.Direction = TDirection.North;
         }
 
         public enum TKind
@@ -151,6 +192,23 @@ namespace rotstein
             Iron,
             RedstoneBlock,
             RedstoneWire,
+            NotGate,
+            OrGate,
+            AndGate,
+        }
+
+        public enum TDirection
+        {
+            North,
+            East,
+            South,
+            West,
+            NA,
+        }
+
+        public float RotationDegree()
+        {
+            return ((int)Direction) * 90f;
         }
     }
 }

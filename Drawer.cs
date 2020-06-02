@@ -101,18 +101,18 @@ namespace rotstein
             if (tile.Kind == 0)
                 return;
 
-            switch (tile.Rotation)
+            switch (tile.Direction)
             {
-                case 0:
+                case Tile.TDirection.North:
                     break;
-                case 1:
+                case Tile.TDirection.East:
                     pos.X += TEXTURE_SIZE;
                     break;
-                case 2:
+                case Tile.TDirection.South:
                     pos.X += TEXTURE_SIZE;
                     pos.Y += TEXTURE_SIZE;
                     break;
-                case 3:
+                case Tile.TDirection.West:
                     pos.Y += TEXTURE_SIZE;
                     break;
             }
@@ -124,7 +124,7 @@ namespace rotstein
                 TEXTURE_SIZE, TEXTURE_SIZE));
 
             sprite.Position = pos;
-            sprite.Rotation = tile.Rotation * 90f;
+            sprite.Rotation = tile.RotationDegree();
 
             Window.Draw(sprite);
         }
