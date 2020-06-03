@@ -63,50 +63,51 @@ namespace rotstein
 
         public void Loop()
         {
-            var clock = new Clock();
-            while (Window.IsOpen)
+            using (var clock = new Clock())
             {
-                Window.DispatchEvents();
-
-                // TODO: move to a function
-
-                var elapsed = clock.ElapsedTime.AsMilliseconds() / 1000f;
-                clock.Restart();
-
-                View view = Window.GetView();
-                Game.Player.Position.X += Game.Player.Velocity.X * elapsed;
-                Game.Player.Position.Y += Game.Player.Velocity.Y * elapsed;
-                view.Move(new Vector2f(Game.Player.Velocity.X * elapsed, Game.Player.Velocity.Y * elapsed));
-                Window.SetView(view);
-
-
-                Window.Clear(new Color(50, 100, 0));
-                for (int i = 0; i < PLAYGROUND_SIZE; i++)
+                while (Window.IsOpen)
                 {
-                    for (int j = 0; j < PLAYGROUND_SIZE; j++)
-                    {
-                        int redwire_directions;
-                        if (Game.Tiles[i, j].Kind == Tile.TKind.RedstoneWire)
-                        {
-                            redwire_directions = 
-                                (Game.IsRedConnected(Game.Tiles[i, j - 1], Tile.TDirection.South) ? 1 : 0) +
-                                (Game.IsRedConnected(Game.Tiles[i + 1, j], Tile.TDirection.West) ? 1 : 0) * 2 +
-                                (Game.IsRedConnected(Game.Tiles[i, j + 1], Tile.TDirection.North) ? 1 : 0) * 4 +
-                                (Game.IsRedConnected(Game.Tiles[i - 1, j], Tile.TDirection.East) ? 1 : 0) * 8;
-                        }
-                        else
-                        {
-                            redwire_directions = 0;
-                        }
-                        DrawTile(new Vector2f(i * TEXTURE_SIZE, j * TEXTURE_SIZE), Game.Tiles[i, j], redwire_directions);
-                    }
-                }
-                DrawPlayer();
-                DrawGui();
+                    Window.DispatchEvents();
 
-                Window.Display();
+                    // TODO: move to a function
+
+                    var elapsed = clock.ElapsedTime.AsMilliseconds() / 1000f;
+                    clock.Restart();
+
+                    View view = Window.GetView();
+                    Game.Player.Position.X += Game.Player.Velocity.X * elapsed;
+                    Game.Player.Position.Y += Game.Player.Velocity.Y * elapsed;
+                    view.Move(new Vector2f(Game.Player.Velocity.X * elapsed, Game.Player.Velocity.Y * elapsed));
+                    Window.SetView(view);
+
+
+                    Window.Clear(new Color(50, 100, 0));
+                    for (int i = 0; i < PLAYGROUND_SIZE; i++)
+                    {
+                        for (int j = 0; j < PLAYGROUND_SIZE; j++)
+                        {
+                            int redwire_directions;
+                            if (Game.Tiles[i, j].Kind == Tile.TKind.RedstoneWire)
+                            {
+                                redwire_directions =
+                                    (Game.IsRedConnected(Game.Tiles[i, j - 1], Tile.TDirection.South) ? 1 : 0) +
+                                    (Game.IsRedConnected(Game.Tiles[i + 1, j], Tile.TDirection.West) ? 1 : 0) * 2 +
+                                    (Game.IsRedConnected(Game.Tiles[i, j + 1], Tile.TDirection.North) ? 1 : 0) * 4 +
+                                    (Game.IsRedConnected(Game.Tiles[i - 1, j], Tile.TDirection.East) ? 1 : 0) * 8;
+                            }
+                            else
+                            {
+                                redwire_directions = 0;
+                            }
+                            DrawTile(new Vector2f(i * TEXTURE_SIZE, j * TEXTURE_SIZE), Game.Tiles[i, j], redwire_directions);
+                        }
+                    }
+                    DrawPlayer();
+                    DrawGui();
+
+                    Window.Display();
+                }
             }
-            clock.Dispose();
         }
 
         void DrawTile(Vector2f pos, Tile tile, int redwire_directions = 0)
