@@ -140,15 +140,15 @@ namespace rotstein
 
             public TPlayer()
             {
-                Hotbar.Tiles = new Tile.TKind[10];
-                Hotbar.Tiles[0] = Tile.TKind.Planks;
-                Hotbar.Tiles[1] = Tile.TKind.Stone;
-                Hotbar.Tiles[2] = Tile.TKind.Iron;
-                Hotbar.Tiles[3] = Tile.TKind.RedstoneBlock;
-                Hotbar.Tiles[4] = Tile.TKind.RedstoneWire;
-                Hotbar.Tiles[5] = Tile.TKind.NotGate;
-                Hotbar.Tiles[6] = Tile.TKind.OrGate;
-                Hotbar.Tiles[7] = Tile.TKind.AndGate;
+                Hotbar.Tiles = new Tile[10];
+                Hotbar.Tiles[0] = new Tile(Tile.TKind.Planks);
+                Hotbar.Tiles[1] = new Tile(Tile.TKind.Stone);
+                Hotbar.Tiles[2] = new Tile(Tile.TKind.Iron);
+                Hotbar.Tiles[3] = new Tile(Tile.TKind.RedstoneBlock);
+                Hotbar.Tiles[4] = new Tile(Tile.TKind.RedstoneWire);
+                Hotbar.Tiles[5] = new Tile(Tile.TKind.NotGate);
+                Hotbar.Tiles[6] = new Tile(Tile.TKind.OrGate);
+                Hotbar.Tiles[7] = new Tile(Tile.TKind.AndGate);
             }
 
             public byte NextAnimationStep()
@@ -163,10 +163,14 @@ namespace rotstein
 
             public struct THotbar
             {
-                public Tile.TKind[] Tiles;
+                public Tile[] Tiles;
                 public uint Index; // Which item from hotbar is picked
 
-                public Tile.TKind IndexTile => Tiles[Index];
+                public Tile IndexTile
+                {
+                    get { return Tiles[Index]; }
+                    set { Tiles[Index] = value; }
+                }
             }
         }
     }
@@ -209,6 +213,16 @@ namespace rotstein
         public float RotationDegree()
         {
             return ((int)Direction) * 90f;
+        }
+
+        /// Rotates tile right "turns" times. "turns" can be negative.
+        public static TDirection TDirectionRotate(TDirection direction, int turns)
+        {
+            if (direction == TDirection.NA)
+            {
+                throw new System.ArgumentException("Direction was NA", "direction");
+            }
+            return (TDirection)(((int)direction + turns) % 4);
         }
     }
 }

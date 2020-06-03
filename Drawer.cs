@@ -178,7 +178,7 @@ namespace rotstein
                     Window.Draw(hotbar_tile_background);
 
                     DrawTile(hotbar_zero + new Vector2f(20, 0) * i + new Vector2f(2, 2),
-                    new Tile(Game.Player.Hotbar.Tiles[i]));
+                    Game.Player.Hotbar.Tiles[i]);
                 }
             }
         }
@@ -241,6 +241,11 @@ namespace rotstein
                                     Game.Player.SpriteDirection = true;
                                     break;
                             }
+                            break;
+                        case Keyboard.Key.R:
+                            Tile tile = Game.Player.Hotbar.IndexTile;
+                            tile.Direction = Tile.TDirectionRotate(tile.Direction, 1); // Rotate tile right
+                            Game.Player.Hotbar.IndexTile = tile;
                             break;
                     }
                     break;
@@ -306,7 +311,7 @@ namespace rotstein
             Vector2u tile_coord = new Vector2u(
                 (uint)System.Math.Ceiling((float)((args.X - WindowSize.X / 2) / SCALE + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
                 (uint)System.Math.Ceiling((float)((args.Y - WindowSize.Y / 2) / SCALE + Game.Player.Position.Y) / (float)(TEXTURE_SIZE)));
-            Game.PlaceTile(tile_coord.X, tile_coord.Y, new Tile(Game.Player.Hotbar.IndexTile));
+            Game.PlaceTile(tile_coord.X, tile_coord.Y, Game.Player.Hotbar.IndexTile);
         }
 
         enum TInputState
