@@ -90,7 +90,7 @@ namespace rotstein
                     old_activity = Tiles[x, y].Variant;
                     {
                         Vector2u neighbor = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.South));
-                        new_activity = (!IsRedActive(ref Tiles[neighbor.X, neighbor.Y], 0)) ? (uint)1 : (uint)0;
+                        new_activity = (!IsRedActive(ref Tiles[neighbor.X, neighbor.Y], Tiles[x, y].Direction)) ? (uint)1 : (uint)0;
                     }
                     Tiles[x, y].Variant = new_activity;
 
