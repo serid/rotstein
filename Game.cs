@@ -35,6 +35,8 @@ namespace rotstein
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West), Prealloc_UpToDateNodes);
                     break;
                 case Tile.TKind.NotGate:
+                case Tile.TKind.OrGate:
+                case Tile.TKind.AndGate:
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
                     break;
             }
@@ -52,6 +54,8 @@ namespace rotstein
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West), Prealloc_UpToDateNodes);
                     break;
                 case Tile.TKind.NotGate:
+                case Tile.TKind.OrGate:
+                case Tile.TKind.AndGate:
                     UpdateTile(v, Prealloc_UpToDateNodes);
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
                     break;
@@ -70,7 +74,7 @@ namespace rotstein
             System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
 
             uint old_activity;
-            uint new_activity;
+            uint new_activity = 0;
             switch (Tiles[x, y].Kind)
             {
                 case Tile.TKind.RedstoneWire:
@@ -87,10 +91,40 @@ namespace rotstein
                     }
                     break;
                 case Tile.TKind.NotGate:
+                case Tile.TKind.OrGate:
+                case Tile.TKind.AndGate:
+                    // Gates
                     old_activity = Tiles[x, y].Variant;
                     {
-                        Vector2u neighbor = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.South));
-                        new_activity = Tile.BoolToActivity(!IsRedActive(ref Tiles[neighbor.X, neighbor.Y], Tiles[x, y].Direction));
+                        switch (Tiles[x, y].Kind)
+                        {
+                            case Tile.TKind.NotGate:
+                                // Unary gate
+                                Vector2u input = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.South));
+                                new_activity = Tile.BoolToActivity(!IsRedActive(ref Tiles[input.X, input.Y], Tiles[x, y].Direction));
+                                break;
+                            case Tile.TKind.OrGate:
+                            case Tile.TKind.AndGate:
+                                // Binary gate
+                                Vector2u input_left = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West));
+                                Vector2u input_right = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East));
+                                switch (Tiles[x, y].Kind)
+                                {
+                                    case Tile.TKind.OrGate:
+                                        new_activity = Tile.BoolToActivity(
+                                            IsRedActive(ref Tiles[input_left.X, input_left.Y], Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East)) ||
+                                            IsRedActive(ref Tiles[input_right.X, input_right.Y], Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West))
+                                            );
+                                        break;
+                                    case Tile.TKind.AndGate:
+                                        new_activity = Tile.BoolToActivity(
+                                            IsRedActive(ref Tiles[input_left.X, input_left.Y], Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East)) &&
+                                            IsRedActive(ref Tiles[input_right.X, input_right.Y], Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West))
+                                            );
+                                        break;
+                                }
+                                break;
+                        }
                     }
                     Tiles[x, y].Variant = new_activity;
 
@@ -131,6 +165,8 @@ namespace rotstein
                 case Tile.TKind.RedstoneWire:
                     return (tile.Variant == 1);
                 case Tile.TKind.NotGate:
+                case Tile.TKind.OrGate:
+                case Tile.TKind.AndGate:
                     return (tile.Direction == direction) && (tile.Variant == 1);
 
                 default:
