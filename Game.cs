@@ -16,8 +16,10 @@ namespace rotstein
             Prealloc_RedCheckedNodes = new bool[Tiles.GetLength(0), Tiles.GetLength(1)];
         }
 
-        public void PlaceTile(uint x, uint y, Tile tile)
+        public void PlaceTile(Vector2u v, Tile tile)
         {
+            (uint x, uint y) = (v.X, v.Y);
+
             var oldTileKind = Tiles[x, y].Kind;
             Tiles[x, y] = tile;
 
@@ -27,13 +29,13 @@ namespace rotstein
             { // Update neighbors if old tile was important
                 case Tile.TKind.RedstoneWire:
                 case Tile.TKind.RedstoneBlock:
-                    UpdateTile(x, y - 1, Prealloc_UpToDateNodes);
-                    UpdateTile(x - 1, y, Prealloc_UpToDateNodes);
-                    UpdateTile(x, y + 1, Prealloc_UpToDateNodes);
-                    UpdateTile(x + 1, y, Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.East), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.South), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West), Prealloc_UpToDateNodes);
                     break;
                 case Tile.TKind.NotGate:
-                    UpdateTile(x, y - 1, Prealloc_UpToDateNodes); // TODO: implement rotation
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
                     break;
             }
 
@@ -41,23 +43,25 @@ namespace rotstein
             { // Update self if new tile is dynamic
               // Update neighbors if new tile is important
                 case Tile.TKind.RedstoneWire:
-                    UpdateTile(x, y, Prealloc_UpToDateNodes);
+                    UpdateTile(v, Prealloc_UpToDateNodes);
                     break;
                 case Tile.TKind.RedstoneBlock:
-                    UpdateTile(x, y - 1, Prealloc_UpToDateNodes);
-                    UpdateTile(x - 1, y, Prealloc_UpToDateNodes);
-                    UpdateTile(x, y + 1, Prealloc_UpToDateNodes);
-                    UpdateTile(x + 1, y, Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.East), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.South), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West), Prealloc_UpToDateNodes);
                     break;
                 case Tile.TKind.NotGate:
-                    UpdateTile(x, y, Prealloc_UpToDateNodes);
-                    UpdateTile(x, y - 1, Prealloc_UpToDateNodes); // TODO: implement rotation
+                    UpdateTile(v, Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
                     break;
             }
         }
 
-        void UpdateTile(uint x, uint y, bool[,] upToDateNodes)
+        void UpdateTile(Vector2u v, bool[,] upToDateNodes)
         {
+            (uint x, uint y) = (v.X, v.Y);
+
             if (upToDateNodes[x, y])
                 return;
 
@@ -71,32 +75,36 @@ namespace rotstein
             {
                 case Tile.TKind.RedstoneWire:
                     old_activity = Tiles[x, y].Variant;
-                    new_activity = isRedReachable(x, y, Tile.TDirection.NA, Prealloc_RedCheckedNodes) ? (uint)1 : (uint)0;
+                    new_activity = isRedReachable(v, Tile.TDirection.NA, Prealloc_RedCheckedNodes) ? (uint)1 : (uint)0;
                     Tiles[x, y].Variant = new_activity;
 
                     if (old_activity != new_activity)
                     {
-                        UpdateTile(x, y - 1, upToDateNodes);
-                        UpdateTile(x - 1, y, upToDateNodes);
-                        UpdateTile(x, y + 1, upToDateNodes);
-                        UpdateTile(x + 1, y, upToDateNodes);
+                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North), upToDateNodes);
+                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.East), upToDateNodes);
+                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.South), upToDateNodes);
+                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West), upToDateNodes);
                     }
                     break;
                 case Tile.TKind.NotGate:
                     old_activity = Tiles[x, y].Variant;
-                    new_activity = (!IsRedActive(ref Tiles[x, y + 1], 0)) ? (uint)1 : (uint)0; // TODO: implement rotation
+                    {
+                        Vector2u neighbor = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.South));
+                        new_activity = (!IsRedActive(ref Tiles[neighbor.X, neighbor.Y], 0)) ? (uint)1 : (uint)0;
+                    }
                     Tiles[x, y].Variant = new_activity;
 
                     if (old_activity != new_activity)
                     {
-                        UpdateTile(x, y - 1, upToDateNodes); // TODO: implement rotation
+                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North)), upToDateNodes);
                     }
                     break;
             }
         }
 
-        bool isRedReachable(uint x, uint y, Tile.TDirection direction, bool[,] checkedNodes)
+        bool isRedReachable(Vector2u v, Tile.TDirection direction, bool[,] checkedNodes)
         {
+            (uint x, uint y) = (v.X, v.Y);
             if (checkedNodes[x, y])
                 return false;
 
@@ -105,10 +113,10 @@ namespace rotstein
             switch (Tiles[x, y].Kind)
             {
                 case Tile.TKind.RedstoneWire:
-                    return isRedReachable(x, y - 1, Tile.TDirection.South, checkedNodes) ||
-                    isRedReachable(x - 1, y, Tile.TDirection.East, checkedNodes) ||
-                    isRedReachable(x, y + 1, Tile.TDirection.North, checkedNodes) ||
-                    isRedReachable(x + 1, y, Tile.TDirection.West, checkedNodes);
+                    return isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.North), Tile.TDirection.South, checkedNodes) ||
+                    isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.West), Tile.TDirection.East, checkedNodes) ||
+                    isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.South), Tile.TDirection.North, checkedNodes) ||
+                    isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.East), Tile.TDirection.West, checkedNodes);
                 default:
                     return IsRedActive(ref Tiles[x, y], direction);
             }
@@ -223,6 +231,37 @@ namespace rotstein
                 throw new System.ArgumentException("Direction was NA", "direction");
             }
             return (TDirection)(((int)direction + turns) % 4);
+        }
+
+        /// Adds two TDirection values.
+        public static TDirection TDirectionAdd(TDirection d1, TDirection d2)
+        {
+            if (d1 == TDirection.NA)
+            {
+                throw new System.ArgumentException("Direction 1 was NA", "d1");
+            }
+            if (d2 == TDirection.NA)
+            {
+                throw new System.ArgumentException("Direction 2 was NA", "d2");
+            }
+            return (TDirection)(((int)d1 + (int)d2) % 4);
+        }
+
+        public static Vector2u PickTileInDirection(Vector2u tile_coords, TDirection direction)
+        {
+            switch (direction)
+            {
+                case TDirection.North:
+                    return new Vector2u(tile_coords.X, tile_coords.Y - 1);
+                case TDirection.East:
+                    return new Vector2u(tile_coords.X + 1, tile_coords.Y);
+                case TDirection.South:
+                    return new Vector2u(tile_coords.X, tile_coords.Y + 1);
+                case TDirection.West:
+                    return new Vector2u(tile_coords.X - 1, tile_coords.Y);
+                default:
+                    throw new System.ArgumentException("Direction was NA", "direction");
+            }
         }
     }
 }
