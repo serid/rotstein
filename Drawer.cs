@@ -337,7 +337,15 @@ namespace rotstein
             Vector2u tile_coord = new Vector2u(
                 (uint)System.Math.Ceiling((float)((args.X - WindowSize.X / 2) / SCALE + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
                 (uint)System.Math.Ceiling((float)((args.Y - WindowSize.Y / 2) / SCALE + Game.Player.Position.Y) / (float)(TEXTURE_SIZE)));
-            Game.PlaceTile(tile_coord, Game.Player.Hotbar.IndexTile);
+            switch (args.Button)
+            {
+                case Mouse.Button.Left:
+                    Game.PlaceTile(tile_coord, Game.Player.Hotbar.IndexTile);
+                    break;
+                case Mouse.Button.Right:
+                    Game.PlaceTile(tile_coord, new Tile(Tile.TKind.Void));
+                    break;
+            }
         }
 
         enum TInputState
