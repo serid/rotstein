@@ -156,7 +156,8 @@ namespace rotstein
             }
         }
 
-        bool IsRedActive(ref Tile tile, Tile.TDirection direction)
+        /// Is this tile active in direction "direction"?
+        static bool IsRedActive(ref Tile tile, Tile.TDirection direction)
         {
             switch (tile.Kind)
             {
@@ -167,7 +168,29 @@ namespace rotstein
                 case Tile.TKind.NotGate:
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
-                    return (tile.Direction == direction) && (tile.Variant == 1);
+                    return (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North) == direction) && (tile.Variant == 1);
+
+                default:
+                    return false;
+            }
+        }
+
+        /// Does this tile connect in direction "direction"?
+        public static bool IsRedConnected(Tile tile, Tile.TDirection direction)
+        {
+            switch (tile.Kind)
+            {
+                case Tile.TKind.RedstoneBlock:
+                case Tile.TKind.RedstoneWire:
+                    return true;
+                case Tile.TKind.NotGate:
+                    return (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North) == direction) ||
+                        (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.South) == direction);
+                case Tile.TKind.OrGate:
+                case Tile.TKind.AndGate:
+                    return (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North) == direction) ||
+                        (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.East) == direction) ||
+                        (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.West) == direction);
 
                 default:
                     return false;

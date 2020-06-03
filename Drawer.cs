@@ -85,7 +85,20 @@ namespace rotstein
                 {
                     for (int j = 0; j < PLAYGROUND_SIZE; j++)
                     {
-                        DrawTile(new Vector2f(i * TEXTURE_SIZE, j * TEXTURE_SIZE), Game.Tiles[i, j]);
+                        int redwire_directions;
+                        if (Game.Tiles[i, j].Kind == Tile.TKind.RedstoneWire)
+                        {
+                            redwire_directions = 
+                                (Game.IsRedConnected(Game.Tiles[i, j - 1], Tile.TDirection.South) ? 1 : 0) +
+                                (Game.IsRedConnected(Game.Tiles[i + 1, j], Tile.TDirection.West) ? 1 : 0) * 2 +
+                                (Game.IsRedConnected(Game.Tiles[i, j + 1], Tile.TDirection.North) ? 1 : 0) * 4 +
+                                (Game.IsRedConnected(Game.Tiles[i - 1, j], Tile.TDirection.East) ? 1 : 0) * 8;
+                        }
+                        else
+                        {
+                            redwire_directions = 0;
+                        }
+                        DrawTile(new Vector2f(i * TEXTURE_SIZE, j * TEXTURE_SIZE), Game.Tiles[i, j], redwire_directions);
                     }
                 }
                 DrawPlayer();
@@ -96,36 +109,48 @@ namespace rotstein
             clock.Dispose();
         }
 
-        void DrawTile(Vector2f pos, Tile tile)
+        void DrawTile(Vector2f pos, Tile tile, int redwire_directions = 0)
         {
-            if (tile.Kind == 0)
-                return;
-
-            switch (tile.Direction)
+            Sprite sprite;
+            switch (tile.Kind)
             {
-                case Tile.TDirection.North:
+                case Tile.TKind.Void:
+                    return;
+
+                case Tile.TKind.RedstoneWire:
+                    sprite = new Sprite(Atlas, new IntRect(
+                        redwire_directions * TEXTURE_SIZE,
+                        (4 + (int)(tile.Variant)) * TEXTURE_SIZE,
+                        TEXTURE_SIZE, TEXTURE_SIZE));
                     break;
-                case Tile.TDirection.East:
-                    pos.X += TEXTURE_SIZE;
-                    break;
-                case Tile.TDirection.South:
-                    pos.X += TEXTURE_SIZE;
-                    pos.Y += TEXTURE_SIZE;
-                    break;
-                case Tile.TDirection.West:
-                    pos.Y += TEXTURE_SIZE;
+
+                default:
+                    switch (tile.Direction)
+                    {
+                        case Tile.TDirection.North:
+                            break;
+                        case Tile.TDirection.East:
+                            pos.X += TEXTURE_SIZE;
+                            break;
+                        case Tile.TDirection.South:
+                            pos.X += TEXTURE_SIZE;
+                            pos.Y += TEXTURE_SIZE;
+                            break;
+                        case Tile.TDirection.West:
+                            pos.Y += TEXTURE_SIZE;
+                            break;
+                    }
+
+                    int texture_index = (int)tile.Kind - 1;
+                    sprite = new Sprite(Atlas, new IntRect(
+                        texture_index * TEXTURE_SIZE,
+                        0 + (int)(tile.Variant) * TEXTURE_SIZE,
+                        TEXTURE_SIZE, TEXTURE_SIZE));
+
+                    sprite.Rotation = tile.RotationDegree();
                     break;
             }
-
-            int texture_index = (int)tile.Kind - 1;
-            var sprite = new Sprite(Atlas, new IntRect(
-                texture_index * TEXTURE_SIZE,
-                0 + (int)(tile.Variant) * TEXTURE_SIZE,
-                TEXTURE_SIZE, TEXTURE_SIZE));
-
             sprite.Position = pos;
-            sprite.Rotation = tile.RotationDegree();
-
             Window.Draw(sprite);
         }
 
