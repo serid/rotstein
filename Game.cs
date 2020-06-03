@@ -75,7 +75,7 @@ namespace rotstein
             {
                 case Tile.TKind.RedstoneWire:
                     old_activity = Tiles[x, y].Variant;
-                    new_activity = isRedReachable(v, Tile.TDirection.NA, Prealloc_RedCheckedNodes) ? (uint)1 : (uint)0;
+                    new_activity = Tile.BoolToActivity(isRedReachable(v, Tile.TDirection.NA, Prealloc_RedCheckedNodes));
                     Tiles[x, y].Variant = new_activity;
 
                     if (old_activity != new_activity)
@@ -90,7 +90,7 @@ namespace rotstein
                     old_activity = Tiles[x, y].Variant;
                     {
                         Vector2u neighbor = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.South));
-                        new_activity = (!IsRedActive(ref Tiles[neighbor.X, neighbor.Y], Tiles[x, y].Direction)) ? (uint)1 : (uint)0;
+                        new_activity = Tile.BoolToActivity(!IsRedActive(ref Tiles[neighbor.X, neighbor.Y], Tiles[x, y].Direction));
                     }
                     Tiles[x, y].Variant = new_activity;
 
@@ -262,6 +262,11 @@ namespace rotstein
                 default:
                     throw new System.ArgumentException("Direction was NA", "direction");
             }
+        }
+
+        public static uint BoolToActivity(bool b)
+        {
+            return b ? (uint)1 : (uint)0;
         }
     }
 }
