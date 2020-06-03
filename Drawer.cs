@@ -90,10 +90,10 @@ namespace rotstein
                             if (Game.Tiles[i, j].Kind == Tile.TKind.RedstoneWire)
                             {
                                 redwire_directions =
-                                    (Game.IsRedConnected(Game.Tiles[i, j - 1], Tile.TDirection.South) ? 1 : 0) +
-                                    (Game.IsRedConnected(Game.Tiles[i + 1, j], Tile.TDirection.West) ? 1 : 0) * 2 +
-                                    (Game.IsRedConnected(Game.Tiles[i, j + 1], Tile.TDirection.North) ? 1 : 0) * 4 +
-                                    (Game.IsRedConnected(Game.Tiles[i - 1, j], Tile.TDirection.East) ? 1 : 0) * 8;
+                                    ((Game.IsRedConnected(Game.Tiles[i, j - 1], Tile.TDirection.South) ? 1 : 0) << 0) |
+                                    ((Game.IsRedConnected(Game.Tiles[i + 1, j], Tile.TDirection.West) ? 1 : 0) << 1) |
+                                    ((Game.IsRedConnected(Game.Tiles[i, j + 1], Tile.TDirection.North) ? 1 : 0) << 2) |
+                                    ((Game.IsRedConnected(Game.Tiles[i - 1, j], Tile.TDirection.East) ? 1 : 0) << 3);
                             }
                             else
                             {
