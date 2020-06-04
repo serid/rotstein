@@ -27,6 +27,16 @@ namespace rotstein
 
             System.Array.Clear(Prealloc_UpToDateNodes, 0, Prealloc_UpToDateNodes.Length); // Clear preallocated array before using it
 
+            switch (tile.Kind)
+            { // Update self if new tile is dynamic
+                case Tile.TKind.RedstoneWire:
+                case Tile.TKind.NotGate:
+                case Tile.TKind.OrGate:
+                case Tile.TKind.AndGate:
+                    UpdateTile(v, Prealloc_UpToDateNodes);
+                    break;
+            }
+
             switch (oldTileKind)
             { // Update neighbors if old tile was important
                 case Tile.TKind.RedstoneWire:
@@ -44,11 +54,8 @@ namespace rotstein
             }
 
             switch (tile.Kind)
-            { // Update self if new tile is dynamic
-              // Update neighbors if new tile is important
+            { // Update neighbors if new tile is important
                 case Tile.TKind.RedstoneWire:
-                    UpdateTile(v, Prealloc_UpToDateNodes);
-                    break;
                 case Tile.TKind.RedstoneBlock:
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North), Prealloc_UpToDateNodes);
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.East), Prealloc_UpToDateNodes);
@@ -58,7 +65,6 @@ namespace rotstein
                 case Tile.TKind.NotGate:
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
-                    UpdateTile(v, Prealloc_UpToDateNodes);
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
                     break;
             }
