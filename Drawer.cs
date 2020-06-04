@@ -11,11 +11,13 @@ namespace rotstein
         static readonly uint PLAYGROUND_SIZE = 20;
         static readonly int SCALE = 6; // Game scale
         static readonly int TEXTURE_SIZE = 16;
+        static readonly float TICK_LENGTH = 0.400f; // In seconds
 
         Vector2u WindowSize = new Vector2u(1600, 900); // TODO: change type to Vector2f and remove `* SCALE` everywhere
         Texture Atlas;
         RenderWindow Window;
         Clock PhysicsClock;
+        Clock TicksClock;
         TInputState InputState = TInputState.None;
         string Chatbox = "";
         Font BasicFont = new Font("SourceCodePro-Regular.otf");
@@ -65,12 +67,14 @@ namespace rotstein
         public void Loop()
         {
             using (PhysicsClock = new Clock())
+            using (TicksClock = new Clock())
             {
                 while (Window.IsOpen)
                 {
                     Window.DispatchEvents();
 
                     ClockHandlePhysics();
+                    ClockHandleTicks();
 
                     Window.Clear(new Color(50, 100, 0));
                     for (int i = 0; i < PLAYGROUND_SIZE; i++)
@@ -349,6 +353,16 @@ namespace rotstein
             Game.Player.Position.Y += Game.Player.Velocity.Y * elapsed;
             view.Move(new Vector2f(Game.Player.Velocity.X * elapsed, Game.Player.Velocity.Y * elapsed));
             Window.SetView(view);
+        }
+
+        void ClockHandleTicks()
+        {
+            float elapsed = TicksClock.ElapsedTime.AsMilliseconds() / 1000f;
+            if (elapsed < TICK_LENGTH)
+                return;
+
+            TicksClock.Restart();
+            System.Console.WriteLine("tick");
         }
 
         enum TInputState
