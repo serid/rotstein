@@ -6,6 +6,8 @@ namespace rotstein
         public TPlayer Player { get; } = new TPlayer();
         public Tile[,] Tiles { get; }
 
+        public event System.EventHandler NextTickEvent;
+
         bool[,] Prealloc_UpToDateNodes;
         bool[,] Prealloc_RedCheckedNodes;
 
@@ -133,6 +135,15 @@ namespace rotstein
                         UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North)), upToDateNodes);
                     }
                     break;
+            }
+        }
+
+        public void TickOnce()
+        {
+            if (NextTickEvent != null)
+            {
+                NextTickEvent.Invoke(null, null);
+                NextTickEvent = null;
             }
         }
 

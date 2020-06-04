@@ -363,6 +363,8 @@ namespace rotstein
 
             TicksClock.Restart();
             System.Console.WriteLine("tick");
+
+            Game.TickOnce();
         }
 
         enum TInputState
