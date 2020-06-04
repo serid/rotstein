@@ -362,7 +362,6 @@ namespace rotstein
                 return;
 
             TicksClock.Restart();
-            System.Console.WriteLine("tick");
 
             Game.TickOnce();
         }

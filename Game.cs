@@ -128,12 +128,16 @@ namespace rotstein
                                 break;
                         }
                     }
-                    Tiles[x, y].Variant = new_activity;
 
-                    if (old_activity != new_activity)
+                    NextTickEvent += (_, __) =>
                     {
-                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North)), upToDateNodes);
-                    }
+                        if (old_activity != new_activity)
+                        {
+                            Tiles[x, y].Variant = new_activity;
+                            System.Array.Clear(Prealloc_UpToDateNodes, 0, Prealloc_UpToDateNodes.Length); // Clear preallocated array before using it
+                            UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North)), upToDateNodes);
+                        }
+                    };
                     break;
             }
         }
@@ -142,8 +146,12 @@ namespace rotstein
         {
             if (NextTickEvent != null)
             {
-                NextTickEvent.Invoke(null, null);
+                // Shift events and imvoke.
+                // This is needed because event invokation can add new event handlers
+                // and they should register to a different event queue.
+                var NextTickEvent_tmp = NextTickEvent;
                 NextTickEvent = null;
+                NextTickEvent_tmp.Invoke(null, null);
             }
         }
 
