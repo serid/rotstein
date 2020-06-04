@@ -116,7 +116,7 @@ namespace rotstein
                 case Tile.TKind.RedstoneWire:
                     sprite = new Sprite(Atlas, new IntRect(
                         redwire_directions * TEXTURE_SIZE,
-                        (4 + (int)(tile.Variant)) * TEXTURE_SIZE,
+                        (4 + (tile.Activity ? 1 : 0)) * TEXTURE_SIZE,
                         TEXTURE_SIZE, TEXTURE_SIZE));
                     break;
 
@@ -140,7 +140,7 @@ namespace rotstein
                     int texture_index = (int)tile.Kind - 1;
                     sprite = new Sprite(Atlas, new IntRect(
                         texture_index * TEXTURE_SIZE,
-                        0 + (int)(tile.Variant) * TEXTURE_SIZE,
+                        (0 + (tile.Activity ? 1 : 0)) * TEXTURE_SIZE,
                         TEXTURE_SIZE, TEXTURE_SIZE));
 
                     sprite.Rotation = tile.RotationDegree();
