@@ -22,13 +22,20 @@ namespace rotstein
         {
             (uint x, uint y) = (v.X, v.Y);
 
-            var oldTileKind = Tiles[x, y].Kind;
+            var old_tile = Tiles[x, y];
             Tiles[x, y] = tile;
 
             System.Array.Clear(Prealloc_UpToDateNodes, 0, Prealloc_UpToDateNodes.Length); // Clear preallocated array before using it
 
+            MaybeUpdateSelfTile(v, tile); // Update self if new tile is dynamic
+            MaybeUpdateNeighborTiles(v, old_tile); // Update neighbors if old tile was important
+            MaybeUpdateNeighborTiles(v, tile); // Update neighbors if new tile is important
+        }
+
+        void MaybeUpdateSelfTile(Vector2u v, Tile tile)
+        {
             switch (tile.Kind)
-            { // Update self if new tile is dynamic
+            {
                 case Tile.TKind.RedstoneWire:
                 case Tile.TKind.NotGate:
                 case Tile.TKind.OrGate:
@@ -36,25 +43,12 @@ namespace rotstein
                     UpdateTile(v, Prealloc_UpToDateNodes);
                     break;
             }
+        }
 
-            switch (oldTileKind)
-            { // Update neighbors if old tile was important
-                case Tile.TKind.RedstoneWire:
-                case Tile.TKind.RedstoneBlock:
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North), Prealloc_UpToDateNodes);
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.East), Prealloc_UpToDateNodes);
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.South), Prealloc_UpToDateNodes);
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West), Prealloc_UpToDateNodes);
-                    break;
-                case Tile.TKind.NotGate:
-                case Tile.TKind.OrGate:
-                case Tile.TKind.AndGate:
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
-                    break;
-            }
-
+        void MaybeUpdateNeighborTiles(Vector2u v, Tile tile)
+        {
             switch (tile.Kind)
-            { // Update neighbors if new tile is important
+            {
                 case Tile.TKind.RedstoneWire:
                 case Tile.TKind.RedstoneBlock:
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North), Prealloc_UpToDateNodes);
