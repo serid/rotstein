@@ -15,6 +15,7 @@ namespace rotstein
         Vector2u WindowSize = new Vector2u(1600, 900); // TODO: change type to Vector2f and remove `* SCALE` everywhere
         Texture Atlas;
         RenderWindow Window;
+        Clock PhysicsClock;
         TInputState InputState = TInputState.None;
         string Chatbox = "";
         Font BasicFont = new Font("SourceCodePro-Regular.otf");
@@ -63,23 +64,13 @@ namespace rotstein
 
         public void Loop()
         {
-            using (var clock = new Clock())
+            using (PhysicsClock = new Clock())
             {
                 while (Window.IsOpen)
                 {
                     Window.DispatchEvents();
 
-                    // TODO: move to a function
-
-                    var elapsed = clock.ElapsedTime.AsMilliseconds() / 1000f;
-                    clock.Restart();
-
-                    View view = Window.GetView();
-                    Game.Player.Position.X += Game.Player.Velocity.X * elapsed;
-                    Game.Player.Position.Y += Game.Player.Velocity.Y * elapsed;
-                    view.Move(new Vector2f(Game.Player.Velocity.X * elapsed, Game.Player.Velocity.Y * elapsed));
-                    Window.SetView(view);
-
+                    ClockHandlePhysics();
 
                     Window.Clear(new Color(50, 100, 0));
                     for (int i = 0; i < PLAYGROUND_SIZE; i++)
@@ -346,6 +337,18 @@ namespace rotstein
                     Game.PlaceTile(tile_coord, new Tile(Tile.TKind.Void));
                     break;
             }
+        }
+
+        void ClockHandlePhysics()
+        {
+            var elapsed = PhysicsClock.ElapsedTime.AsMilliseconds() / 1000f;
+            PhysicsClock.Restart();
+
+            View view = Window.GetView();
+            Game.Player.Position.X += Game.Player.Velocity.X * elapsed;
+            Game.Player.Position.Y += Game.Player.Velocity.Y * elapsed;
+            view.Move(new Vector2f(Game.Player.Velocity.X * elapsed, Game.Player.Velocity.Y * elapsed));
+            Window.SetView(view);
         }
 
         enum TInputState
