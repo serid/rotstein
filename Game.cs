@@ -88,7 +88,7 @@ namespace rotstein
             {
                 case Tile.TKind.RedstoneWire:
                     old_activity = Tiles[x, y].Activity;
-                    new_activity = isRedReachable(v, Tile.TDirection.NA, Prealloc_RedCheckedNodes);
+                    new_activity = isRedReachable(v, Tile.TDirection.NA);
                     Tiles[x, y].Activity = new_activity;
 
                     Tiles[x, y].Variant = (uint)
@@ -165,21 +165,21 @@ namespace rotstein
             }
         }
 
-        bool isRedReachable(Vector2u v, Tile.TDirection direction, bool[,] checkedNodes)
+        bool isRedReachable(Vector2u v, Tile.TDirection direction)
         {
             (uint x, uint y) = (v.X, v.Y);
-            if (checkedNodes[x, y])
+            if (Prealloc_RedCheckedNodes[x, y])
                 return false;
 
-            checkedNodes[x, y] = true;
+            Prealloc_RedCheckedNodes[x, y] = true;
 
             switch (Tiles[x, y].Kind)
             {
                 case Tile.TKind.RedstoneWire:
-                    return isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.North), Tile.TDirection.South, checkedNodes) ||
-                    isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.West), Tile.TDirection.East, checkedNodes) ||
-                    isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.South), Tile.TDirection.North, checkedNodes) ||
-                    isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.East), Tile.TDirection.West, checkedNodes);
+                    return isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.North), Tile.TDirection.South) ||
+                    isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.West), Tile.TDirection.East) ||
+                    isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.South), Tile.TDirection.North) ||
+                    isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.East), Tile.TDirection.West);
                 default:
                     return IsRedActive(ref Tiles[x, y], direction);
             }
