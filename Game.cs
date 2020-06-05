@@ -57,8 +57,15 @@ namespace rotstein
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West), Prealloc_UpToDateNodes);
                     break;
                 case Tile.TKind.NotGate:
+                    // Unary gate
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.South)), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
+                    break;
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
+                    // Binary gate
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.East)), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.West)), Prealloc_UpToDateNodes);
                     UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
                     break;
             }
