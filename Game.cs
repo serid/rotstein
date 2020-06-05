@@ -99,10 +99,7 @@ namespace rotstein
 
                     if (old_activity != new_activity)
                     {
-                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North), upToDateNodes);
-                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.East), upToDateNodes);
-                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.South), upToDateNodes);
-                        UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West), upToDateNodes);
+                        MaybeUpdateNeighborTiles(v, Tiles[x, y]);
                     }
                     break;
                 case Tile.TKind.NotGate:
@@ -148,7 +145,7 @@ namespace rotstein
                         {
                             Tiles[x, y].Activity = new_activity;
                             System.Array.Clear(Prealloc_UpToDateNodes, 0, Prealloc_UpToDateNodes.Length); // Clear preallocated array before using it
-                            UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North)), upToDateNodes);
+                            MaybeUpdateNeighborTiles(v, Tiles[x, y]);
                         }
                     };
                     break;
