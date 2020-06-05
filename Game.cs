@@ -84,6 +84,12 @@ namespace rotstein
                     new_activity = isRedReachable(v, Tile.TDirection.NA, Prealloc_RedCheckedNodes);
                     Tiles[x, y].Activity = new_activity;
 
+                    Tiles[x, y].Variant = (uint)
+                        (((IsRedConnected(Tiles[x, y - 1], Tile.TDirection.South) ? 1 : 0) << 0) |
+                        ((IsRedConnected(Tiles[x + 1, y], Tile.TDirection.West) ? 1 : 0) << 1) |
+                        ((IsRedConnected(Tiles[x, y + 1], Tile.TDirection.North) ? 1 : 0) << 2) |
+                        ((IsRedConnected(Tiles[x - 1, y], Tile.TDirection.East) ? 1 : 0) << 3));
+
                     if (old_activity != new_activity)
                     {
                         UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North), upToDateNodes);
@@ -265,14 +271,14 @@ namespace rotstein
     {
         public Tile.TKind Kind;
         public bool Activity;
-        // public uint Variant;
+        public uint Variant;
         public TDirection Direction;
 
         public Tile(Tile.TKind kind)
         {
             this.Kind = kind;
             this.Activity = false;
-            // this.Variant = 0;
+            this.Variant = 0;
             this.Direction = TDirection.North;
         }
 

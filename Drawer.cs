@@ -81,20 +81,7 @@ namespace rotstein
                     {
                         for (int j = 0; j < PLAYGROUND_SIZE; j++)
                         {
-                            int redwire_directions;
-                            if (Game.Tiles[i, j].Kind == Tile.TKind.RedstoneWire)
-                            {
-                                redwire_directions =
-                                    ((Game.IsRedConnected(Game.Tiles[i, j - 1], Tile.TDirection.South) ? 1 : 0) << 0) |
-                                    ((Game.IsRedConnected(Game.Tiles[i + 1, j], Tile.TDirection.West) ? 1 : 0) << 1) |
-                                    ((Game.IsRedConnected(Game.Tiles[i, j + 1], Tile.TDirection.North) ? 1 : 0) << 2) |
-                                    ((Game.IsRedConnected(Game.Tiles[i - 1, j], Tile.TDirection.East) ? 1 : 0) << 3);
-                            }
-                            else
-                            {
-                                redwire_directions = 0;
-                            }
-                            DrawTile(new Vector2f(i * TEXTURE_SIZE, j * TEXTURE_SIZE), Game.Tiles[i, j], redwire_directions);
+                            DrawTile(new Vector2f(i * TEXTURE_SIZE, j * TEXTURE_SIZE), Game.Tiles[i, j]);
                         }
                     }
                     DrawPlayer();
@@ -105,7 +92,7 @@ namespace rotstein
             }
         }
 
-        void DrawTile(Vector2f pos, Tile tile, int redwire_directions = 0)
+        void DrawTile(Vector2f pos, Tile tile)
         {
             Sprite sprite;
             switch (tile.Kind)
@@ -115,7 +102,7 @@ namespace rotstein
 
                 case Tile.TKind.RedstoneWire:
                     sprite = new Sprite(Atlas, new IntRect(
-                        redwire_directions * TEXTURE_SIZE,
+                        ((int)tile.Variant) * TEXTURE_SIZE,
                         (4 + (tile.Activity ? 1 : 0)) * TEXTURE_SIZE,
                         TEXTURE_SIZE, TEXTURE_SIZE));
                     break;
