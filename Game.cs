@@ -40,7 +40,7 @@ namespace rotstein
                 case Tile.TKind.NotGate:
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
-                    UpdateTile(v, Prealloc_UpToDateNodes);
+                    UpdateTile(v);
                     break;
             }
         }
@@ -51,34 +51,34 @@ namespace rotstein
             {
                 case Tile.TKind.RedstoneWire:
                 case Tile.TKind.RedstoneBlock:
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North), Prealloc_UpToDateNodes);
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.East), Prealloc_UpToDateNodes);
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.South), Prealloc_UpToDateNodes);
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North));
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.East));
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.South));
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West));
                     break;
                 case Tile.TKind.NotGate:
                     // Unary gate
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.South)), Prealloc_UpToDateNodes);
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.South)));
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)));
                     break;
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
                     // Binary gate
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.East)), Prealloc_UpToDateNodes);
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.West)), Prealloc_UpToDateNodes);
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)), Prealloc_UpToDateNodes);
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.East)));
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.West)));
+                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)));
                     break;
             }
         }
 
-        void UpdateTile(Vector2u v, bool[,] upToDateNodes)
+        void UpdateTile(Vector2u v)
         {
             (uint x, uint y) = (v.X, v.Y);
 
-            if (upToDateNodes[x, y])
+            if (Prealloc_UpToDateNodes[x, y])
                 return;
 
-            upToDateNodes[x, y] = true;
+            Prealloc_UpToDateNodes[x, y] = true;
 
             System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
 
