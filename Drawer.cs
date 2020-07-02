@@ -270,8 +270,8 @@ namespace rotstein
                             }
                             break;
                         case Keyboard.Key.Enter:
+                            Game.ExecuteCommand(Chatbox);
                             Chatbox = "";
-                            // TODO: execute command
                             InputState = TInputState.None;
                             break;
                     }
@@ -335,10 +335,11 @@ namespace rotstein
             var elapsed = PhysicsClock.ElapsedTime.AsMilliseconds() / 1000f;
             PhysicsClock.Restart();
 
-            View view = Window.GetView();
             Game.Player.Position.X += Game.Player.Velocity.X * elapsed;
             Game.Player.Position.Y += Game.Player.Velocity.Y * elapsed;
-            view.Move(new Vector2f(Game.Player.Velocity.X * elapsed, Game.Player.Velocity.Y * elapsed));
+
+            View view = Window.GetView();
+            view.Center = Game.Player.Position + new Vector2f(TEXTURE_SIZE / 2, 2 * TEXTURE_SIZE / 2);
             Window.SetView(view);
         }
 

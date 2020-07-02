@@ -4,7 +4,7 @@ namespace rotstein
     class Game
     {
         public TPlayer Player { get; } = new TPlayer();
-        public Tile[,] Tiles { get; }
+        public Tile[,] Tiles { get; private set; }
 
         public event System.EventHandler NextTickEvent;
 
@@ -162,6 +162,85 @@ namespace rotstein
                 var NextTickEvent_tmp = NextTickEvent;
                 NextTickEvent = null;
                 NextTickEvent_tmp.Invoke(null, null);
+            }
+        }
+
+        public void ExecuteCommand(string command)
+        {
+            string[] words = command.Split();
+            if (words[0] == "world")
+            {
+                if (words[1] == "save")
+                {
+                    // TODO: print success message in chat
+                    SerializePlayerAndMap(words[2]);
+                }
+                else if (words[1] == "load")
+                {
+                    // TODO: print success message in chat
+                    DeserializePlayerAndMap(words[2]);
+                }
+            }
+        }
+
+        void SerializePlayerAndMap(string file_name)
+        {
+            using (var file = new System.IO.BinaryWriter(System.IO.File.Create(file_name)))
+            {
+                file.Write(1); // FormatVersion
+                file.Write(Player.Position.X);
+                file.Write(Player.Position.Y);
+                file.Write(Tiles.GetLength(0));
+                file.Write(Tiles.GetLength(1));
+                for (int i = 0; i < Tiles.GetLength(0); i++)
+                {
+                    for (int j = 0; j < Tiles.GetLength(1); j++)
+                    {
+                        var tile = Tiles[i, j];
+                        file.Write((byte)tile.Kind);
+                        file.Write((byte)(tile.Activity ? 1 : 0));
+                        file.Write((byte)tile.Variant);
+                        file.Write((byte)tile.Direction);
+                    }
+                }
+            }
+        }
+
+        void DeserializePlayerAndMap(string file_name)
+        {
+            using (var file = new System.IO.BinaryReader(System.IO.File.OpenRead(file_name)))
+            {
+                var format_version = file.ReadInt32();
+
+                if (format_version == 1)
+                {
+                    // Format is binary. All variables are ints by default.
+                    //
+                    // Layout:
+                    // FormatVersion
+                    // (float)Player.Position.X (float)Player.Position.Y
+                    // Tiles.GetLength(0) Tiles.GetLength(1)
+                    // <tiles,format:
+                    //   (byte)this.Kind
+                    //   (byte)this.Activity
+                    //   (byte)this.Variant
+                    //   (byte)this.Direction
+
+                    Player.Position.X = file.ReadSingle();
+                    Player.Position.Y = file.ReadSingle();
+                    var tiles_size = new Vector2i(file.ReadInt32(), file.ReadInt32());
+                    Tiles = new Tile[tiles_size.X, tiles_size.Y];
+                    for (int i = 0; i < tiles_size.X; i++)
+                    {
+                        for (int j = 0; j < tiles_size.Y; j++)
+                        {
+                            Tiles[i, j].Kind = (Tile.TKind)file.ReadByte();
+                            Tiles[i, j].Activity = file.ReadByte() == 1 ? true : false;
+                            Tiles[i, j].Variant = (uint)file.ReadByte();
+                            Tiles[i, j].Direction = (Tile.TDirection)file.ReadByte();
+                        }
+                    }
+                }
             }
         }
 
