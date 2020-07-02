@@ -23,11 +23,21 @@ namespace rotstein
         Font BasicFont = new Font("SourceCodePro-Regular.otf");
         // Font BasicFont = new Font("Cantarell-Regular.otf");
 
+        Sprite Prealloc_Sprite;
+        Text Prealloc_Text;
+        RectangleShape Prealloc_RectangleShape;
+
         Game Game;
 
         public Drawer()
         {
             Atlas = new Texture("rsc/atlas.png");
+            Prealloc_Sprite = new Sprite(Atlas);
+            Prealloc_Text = new Text("", BasicFont, 60);
+            Prealloc_Text.Scale = new Vector2f(0.14f, 0.14f);
+            Prealloc_Text.FillColor = new Color(0, 0, 0);
+            Prealloc_RectangleShape = new RectangleShape();
+
             Window = new RenderWindow(new VideoMode(WindowSize.X, WindowSize.Y), "Rotstein",
                 Styles.Titlebar | Styles.Close | Styles.Resize);
             Window.Closed += (_, __) => Window.Close();
@@ -94,17 +104,16 @@ namespace rotstein
 
         void DrawTile(Vector2f pos, Tile tile)
         {
-            Sprite sprite;
             switch (tile.Kind)
             {
                 case Tile.TKind.Void:
                     return;
 
                 case Tile.TKind.RedstoneWire:
-                    sprite = new Sprite(Atlas, new IntRect(
+                    Prealloc_Sprite.TextureRect = new IntRect(
                         ((int)tile.Variant) * TEXTURE_SIZE,
                         (4 + (tile.Activity ? 1 : 0)) * TEXTURE_SIZE,
-                        TEXTURE_SIZE, TEXTURE_SIZE));
+                        TEXTURE_SIZE, TEXTURE_SIZE);
                     break;
 
                 default:
@@ -125,29 +134,29 @@ namespace rotstein
                     }
 
                     int texture_index = (int)tile.Kind - 1;
-                    sprite = new Sprite(Atlas, new IntRect(
+                    Prealloc_Sprite.TextureRect = new IntRect(
                         texture_index * TEXTURE_SIZE,
                         (0 + (tile.Activity ? 1 : 0)) * TEXTURE_SIZE,
-                        TEXTURE_SIZE, TEXTURE_SIZE));
+                        TEXTURE_SIZE, TEXTURE_SIZE);
 
-                    sprite.Rotation = tile.RotationDegree();
+                    Prealloc_Sprite.Rotation = tile.RotationDegree();
                     break;
             }
-            sprite.Position = pos;
-            Window.Draw(sprite);
+            Prealloc_Sprite.Position = pos;
+            Window.Draw(Prealloc_Sprite);
         }
 
         void DrawPlayer()
         {
             var shift = (Game.Player.AnimationStep + (!Game.Player.SpriteDirection ? 0 : 3)) * TEXTURE_SIZE;
-            var sprite = new Sprite(Atlas, new IntRect(
+            Prealloc_Sprite.TextureRect = new IntRect(
                 shift + 0 * TEXTURE_SIZE,
                 2 * TEXTURE_SIZE,
                 TEXTURE_SIZE,
-                2 * TEXTURE_SIZE));
-            sprite.Position = new Vector2f(Game.Player.Position.X, Game.Player.Position.Y);
+                2 * TEXTURE_SIZE);
+            Prealloc_Sprite.Position = new Vector2f(Game.Player.Position.X, Game.Player.Position.Y);
 
-            Window.Draw(sprite);
+            Window.Draw(Prealloc_Sprite);
         }
 
         void DrawGui()
@@ -161,16 +170,15 @@ namespace rotstein
 
             if (InputState == TInputState.Chat)
             {
-                RectangleShape chat_background = new RectangleShape(new Vector2f(100, 10));
-                chat_background.Position = window_zero + new Vector2f(0, WindowSize.Y / SCALE / 4 * 3);
-                chat_background.FillColor = new Color(100, 100, 100, 200);
-                Window.Draw(chat_background);
+                // Chat
+                Prealloc_RectangleShape.Size = new Vector2f(100, 10);
+                Prealloc_RectangleShape.Position = window_zero + new Vector2f(0, WindowSize.Y / SCALE / 4 * 3);
+                Prealloc_RectangleShape.FillColor = new Color(100, 100, 100, 200);
+                Window.Draw(Prealloc_RectangleShape);
 
-                Text text = new Text('>' + Chatbox + (System.DateTime.Now.Second % 2 == 0 ? "" : "|"), BasicFont, 60);
-                text.Scale = new Vector2f(0.14f, 0.14f);
-                text.FillColor = new Color(0, 0, 0);
-                text.Position = chat_background.Position + new Vector2f(1.0f, -0.8f);
-                Window.Draw(text);
+                Prealloc_Text.DisplayedString = '>' + Chatbox + (System.DateTime.Now.Second % 2 == 0 ? "" : "|");
+                Prealloc_Text.Position = Prealloc_RectangleShape.Position + new Vector2f(1.0f, -0.8f);
+                Window.Draw(Prealloc_Text);
             }
 
             {
@@ -180,10 +188,11 @@ namespace rotstein
                 {
                     Color color = i == Game.Player.Hotbar.Index ? new Color(50, 200, 50, 230) : new Color(50, 50, 50, 230);
 
-                    RectangleShape hotbar_tile_background = new RectangleShape(new Vector2f(20, 20));
-                    hotbar_tile_background.Position = hotbar_zero + new Vector2f(20, 0) * i;
-                    hotbar_tile_background.FillColor = color;
-                    Window.Draw(hotbar_tile_background);
+                    // Hotbar tile background
+                    Prealloc_RectangleShape.Size = new Vector2f(20, 20);
+                    Prealloc_RectangleShape.Position = hotbar_zero + new Vector2f(20, 0) * i;
+                    Prealloc_RectangleShape.FillColor = color;
+                    Window.Draw(Prealloc_RectangleShape);
 
                     DrawTile(hotbar_zero + new Vector2f(20, 0) * i + new Vector2f(2, 2),
                     Game.Player.Hotbar.Tiles[i]);
@@ -345,6 +354,9 @@ namespace rotstein
 
         void ClockHandleTicks()
         {
+            // Garbage monitor
+            System.Console.WriteLine(System.GC.CollectionCount(0));
+
             float elapsed = TicksClock.ElapsedTime.AsMilliseconds() / 1000f;
             if (elapsed < TICK_LENGTH)
                 return;
