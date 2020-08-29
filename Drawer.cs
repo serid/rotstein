@@ -8,26 +8,26 @@ namespace rotstein
 {
     class Drawer
     {
-        static readonly uint PLAYGROUND_SIZE = 20;
-        static readonly int SCALE = 6; // Game scale
-        static readonly int TEXTURE_SIZE = 16;
-        static readonly float TICK_LENGTH = 0.400f; // In seconds
+        private static readonly uint PLAYGROUND_SIZE = 20;
+        private static readonly int SCALE = 6; // Game scale
+        private static readonly int TEXTURE_SIZE = 16;
+        private static readonly float TICK_LENGTH = 0.400f; // In seconds
 
-        Vector2u WindowSize = new Vector2u(1600, 900); // TODO: change type to Vector2f and remove `* SCALE` everywhere
-        Texture Atlas;
-        RenderWindow Window;
-        Clock PhysicsClock;
-        Clock TicksClock;
-        TInputState InputState = TInputState.None;
-        string Chatbox = "";
-        Font BasicFont = new Font("SourceCodePro-Regular.otf");
-        // Font BasicFont = new Font("Cantarell-Regular.otf");
+        private Vector2u WindowSize = new Vector2u(1600, 900); // TODO: change type to Vector2f and remove `* SCALE` everywhere
+        private Texture Atlas;
+        private RenderWindow Window;
+        private Clock PhysicsClock;
+        private Clock TicksClock;
+        private TInputState InputState = TInputState.None;
+        private string Chatbox = "";
+        private Font BasicFont = new Font("SourceCodePro-Regular.otf");
+        // private Font BasicFont = new Font("Cantarell-Regular.otf");
 
-        Sprite Prealloc_Sprite;
-        Text Prealloc_Text;
-        RectangleShape Prealloc_RectangleShape;
+        private Sprite Prealloc_Sprite;
+        private Text Prealloc_Text;
+        private RectangleShape Prealloc_RectangleShape;
 
-        Game Game;
+        private Game Game;
 
         public Drawer()
         {
@@ -102,7 +102,7 @@ namespace rotstein
             }
         }
 
-        void DrawTile(Vector2f pos, Tile tile)
+        private void DrawTile(Vector2f pos, Tile tile)
         {
             switch (tile.Kind)
             {
@@ -146,7 +146,7 @@ namespace rotstein
             Window.Draw(Prealloc_Sprite);
         }
 
-        void DrawPlayer()
+        private void DrawPlayer()
         {
             var shift = (Game.Player.AnimationStep + (!Game.Player.SpriteDirection ? 0 : 3)) * TEXTURE_SIZE;
             Prealloc_Sprite.TextureRect = new IntRect(
@@ -159,7 +159,7 @@ namespace rotstein
             Window.Draw(Prealloc_Sprite);
         }
 
-        void DrawGui()
+        private void DrawGui()
         {
             Vector2f center = Window.GetView().Center;
             // Coordinates of Window 0,0 pixel in **the world**.
@@ -200,7 +200,7 @@ namespace rotstein
             }
         }
 
-        void HandleKeyPress(object _, SFML.Window.KeyEventArgs args)
+        private void HandleKeyPress(object _, SFML.Window.KeyEventArgs args)
         {
             switch (InputState)
             {
@@ -289,7 +289,7 @@ namespace rotstein
             }
         }
 
-        void HandleKeyRelease(object _, SFML.Window.KeyEventArgs args)
+        private void HandleKeyRelease(object _, SFML.Window.KeyEventArgs args)
         {
             switch (InputState)
             {
@@ -309,7 +309,7 @@ namespace rotstein
             }
         }
 
-        void HandleTextEnter(object _, SFML.Window.TextEventArgs args)
+        private void HandleTextEnter(object _, SFML.Window.TextEventArgs args)
         {
             switch (InputState)
             {
@@ -323,7 +323,7 @@ namespace rotstein
             }
         }
 
-        void HandleMouseButtonPress(object _, SFML.Window.MouseButtonEventArgs args)
+        private void HandleMouseButtonPress(object _, SFML.Window.MouseButtonEventArgs args)
         {
             Vector2u tile_coord = new Vector2u(
                 (uint)System.Math.Ceiling((float)((args.X - WindowSize.X / 2) / SCALE + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
@@ -339,7 +339,7 @@ namespace rotstein
             }
         }
 
-        void ClockHandlePhysics()
+        private void ClockHandlePhysics()
         {
             var elapsed = PhysicsClock.ElapsedTime.AsMilliseconds() / 1000f;
             PhysicsClock.Restart();
@@ -352,7 +352,7 @@ namespace rotstein
             Window.SetView(view);
         }
 
-        void ClockHandleTicks()
+        private void ClockHandleTicks()
         {
             // Garbage monitor
             System.Console.WriteLine(System.GC.CollectionCount(0));
@@ -366,7 +366,7 @@ namespace rotstein
             Game.TickOnce();
         }
 
-        enum TInputState
+        private enum TInputState
         {
             None,
             Chat,

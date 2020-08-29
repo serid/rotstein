@@ -6,10 +6,10 @@ namespace rotstein
         public TPlayer Player { get; } = new TPlayer();
         public Tile[,] Tiles { get; private set; }
 
-        public event System.EventHandler NextTickEvent;
+        private event System.EventHandler NextTickEvent;
 
-        bool[,] Prealloc_UpToDateNodes;
-        bool[,] Prealloc_RedCheckedNodes;
+        private bool[,] Prealloc_UpToDateNodes;
+        private bool[,] Prealloc_RedCheckedNodes;
 
         public Game(uint playground_size)
         {
@@ -32,7 +32,7 @@ namespace rotstein
             MaybeUpdateNeighborTiles(v, tile); // Update neighbors if new tile is important
         }
 
-        void MaybeUpdateSelfTile(Vector2u v, Tile tile)
+        private void MaybeUpdateSelfTile(Vector2u v, Tile tile)
         {
             switch (tile.Kind)
             {
@@ -45,7 +45,7 @@ namespace rotstein
             }
         }
 
-        void MaybeUpdateNeighborTiles(Vector2u v, Tile tile)
+        private void MaybeUpdateNeighborTiles(Vector2u v, Tile tile)
         {
             switch (tile.Kind)
             {
@@ -71,7 +71,7 @@ namespace rotstein
             }
         }
 
-        void UpdateTile(Vector2u v)
+        private void UpdateTile(Vector2u v)
         {
             (uint x, uint y) = (v.X, v.Y);
 
@@ -183,7 +183,7 @@ namespace rotstein
             }
         }
 
-        void SerializePlayerAndMap(string file_name)
+        private void SerializePlayerAndMap(string file_name)
         {
             using (var file = new System.IO.BinaryWriter(System.IO.File.Create(file_name)))
             {
@@ -206,7 +206,7 @@ namespace rotstein
             }
         }
 
-        void DeserializePlayerAndMap(string file_name)
+        private void DeserializePlayerAndMap(string file_name)
         {
             using (var file = new System.IO.BinaryReader(System.IO.File.OpenRead(file_name)))
             {
@@ -244,7 +244,7 @@ namespace rotstein
             }
         }
 
-        bool isRedReachable(Vector2u v, Tile.TDirection direction)
+        private bool isRedReachable(Vector2u v, Tile.TDirection direction)
         {
             (uint x, uint y) = (v.X, v.Y);
             if (Prealloc_RedCheckedNodes[x, y])
@@ -265,7 +265,7 @@ namespace rotstein
         }
 
         /// Is this tile active in direction "direction"?
-        static bool IsRedActive(ref Tile tile, Tile.TDirection direction)
+        private static bool IsRedActive(ref Tile tile, Tile.TDirection direction)
         {
             switch (tile.Kind)
             {
