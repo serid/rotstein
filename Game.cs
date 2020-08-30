@@ -5,16 +5,16 @@ namespace rotstein
     {
         public TPlayer Player { get; } = new TPlayer();
         public Tile[,] Tiles { get; private set; }
+        private Tile[,] NextTiles { get; set; }
 
         private event System.EventHandler NextTickEvent;
 
-        private bool[,] Prealloc_UpToDateNodes;
         private bool[,] Prealloc_RedCheckedNodes;
 
         public Game(uint playground_size)
         {
             Tiles = new Tile[playground_size, playground_size];
-            Prealloc_UpToDateNodes = new bool[Tiles.GetLength(0), Tiles.GetLength(1)];
+            NextTiles = new Tile[playground_size, playground_size];
             Prealloc_RedCheckedNodes = new bool[Tiles.GetLength(0), Tiles.GetLength(1)];
         }
 
@@ -22,91 +22,44 @@ namespace rotstein
         {
             (uint x, uint y) = (v.X, v.Y);
 
-            var old_tile = Tiles[x, y];
             Tiles[x, y] = tile;
-
-            System.Array.Clear(Prealloc_UpToDateNodes, 0, Prealloc_UpToDateNodes.Length); // Clear preallocated array before using it
-
-            MaybeUpdateSelfTile(v, tile); // Update self if new tile is dynamic
-            MaybeUpdateNeighborTiles(v, old_tile); // Update neighbors if old tile was important
-            MaybeUpdateNeighborTiles(v, tile); // Update neighbors if new tile is important
         }
 
-        private void MaybeUpdateSelfTile(Vector2u v, Tile tile)
+        public void UpdateTiles()
         {
-            switch (tile.Kind)
+            System.Array.Copy(Tiles, NextTiles, Tiles.Length);
+            for (uint i = 0; i < Tiles.GetLength(0); i++)
             {
-                case Tile.TKind.RedstoneWire:
-                case Tile.TKind.NotGate:
-                case Tile.TKind.OrGate:
-                case Tile.TKind.AndGate:
-                    UpdateTile(v);
-                    break;
+                for (uint j = 0; j < Tiles.GetLength(1); j++)
+                {
+                    UpdateTile(new Vector2u(i, j));
+                }
             }
-        }
-
-        private void MaybeUpdateNeighborTiles(Vector2u v, Tile tile)
-        {
-            switch (tile.Kind)
-            {
-                case Tile.TKind.RedstoneWire:
-                case Tile.TKind.RedstoneBlock:
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.North));
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.East));
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.South));
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirection.West));
-                    break;
-                case Tile.TKind.NotGate:
-                    // Unary gate
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.South)));
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)));
-                    break;
-                case Tile.TKind.OrGate:
-                case Tile.TKind.AndGate:
-                    // Binary gate
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.East)));
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.West)));
-                    UpdateTile(Tile.PickTileInDirection(v, Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North)));
-                    break;
-            }
+            System.Array.Copy(NextTiles, Tiles, Tiles.Length);
         }
 
         private void UpdateTile(Vector2u v)
         {
             (uint x, uint y) = (v.X, v.Y);
 
-            if (Prealloc_UpToDateNodes[x, y])
-                return;
-
-            Prealloc_UpToDateNodes[x, y] = true;
-
             System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
 
-            bool old_activity;
             bool new_activity = false;
             switch (Tiles[x, y].Kind)
             {
                 case Tile.TKind.RedstoneWire:
-                    old_activity = Tiles[x, y].Activity;
-                    new_activity = isRedReachable(v, Tile.TDirection.NA);
-                    Tiles[x, y].Activity = new_activity;
+                    NextTiles[x, y].Activity = isRedReachable(v, Tile.TDirection.NA);
 
-                    Tiles[x, y].Variant = (uint)
+                    NextTiles[x, y].Variant = (uint)
                         (((IsRedConnected(Tiles[x, y - 1], Tile.TDirection.South) ? 1 : 0) << 0) |
                         ((IsRedConnected(Tiles[x + 1, y], Tile.TDirection.West) ? 1 : 0) << 1) |
                         ((IsRedConnected(Tiles[x, y + 1], Tile.TDirection.North) ? 1 : 0) << 2) |
                         ((IsRedConnected(Tiles[x - 1, y], Tile.TDirection.East) ? 1 : 0) << 3));
-
-                    if (old_activity != new_activity)
-                    {
-                        MaybeUpdateNeighborTiles(v, Tiles[x, y]);
-                    }
                     break;
                 case Tile.TKind.NotGate:
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
                     // Gates
-                    old_activity = Tiles[x, y].Activity;
                     {
                         switch (Tiles[x, y].Kind)
                         {
@@ -139,15 +92,7 @@ namespace rotstein
                         }
                     }
 
-                    NextTickEvent += (_, __) =>
-                    {
-                        if (old_activity != new_activity)
-                        {
-                            Tiles[x, y].Activity = new_activity;
-                            System.Array.Clear(Prealloc_UpToDateNodes, 0, Prealloc_UpToDateNodes.Length); // Clear preallocated array before using it
-                            MaybeUpdateNeighborTiles(v, Tiles[x, y]);
-                        }
-                    };
+                    NextTiles[x, y].Activity = new_activity;
                     break;
             }
         }

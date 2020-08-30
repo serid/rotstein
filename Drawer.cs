@@ -82,6 +82,7 @@ namespace rotstein
                 while (Window.IsOpen)
                 {
                     Window.DispatchEvents();
+                    Game.UpdateTiles();
 
                     ClockHandlePhysics();
                     ClockHandleTicks();
