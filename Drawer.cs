@@ -104,6 +104,7 @@ namespace rotstein
 
         private void DrawTile(Vector2f pos, Tile tile)
         {
+            Prealloc_Sprite.Rotation = 0;
             switch (tile.Kind)
             {
                 case Tile.TKind.Void:
