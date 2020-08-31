@@ -29,6 +29,8 @@ namespace rotstein
 
         private Game Game;
 
+        private long GcUsedMemory;
+
         public Drawer()
         {
             Atlas = new Texture("rsc/atlas.png");
@@ -357,7 +359,12 @@ namespace rotstein
         private void ClockHandleTicks()
         {
             // Garbage monitor
-            System.Console.WriteLine(System.GC.CollectionCount(0));
+            long new_gc_used_memory = System.GC.GetTotalMemory(false);
+            if (new_gc_used_memory != GcUsedMemory)
+            {
+                GcUsedMemory = new_gc_used_memory;
+                System.Console.WriteLine("New allocation. GC total allocated memory: {0}", new_gc_used_memory);
+            }
 
             float elapsed = TicksClock.ElapsedTime.AsMilliseconds() / 1000f;
             if (elapsed < TICK_LENGTH)
