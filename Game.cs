@@ -48,7 +48,8 @@ namespace rotstein
             switch (Tiles[x, y].Kind)
             {
                 case Tile.TKind.RedstoneWire:
-                    NextTiles[x, y].Activity = isRedReachable(v, Tile.TDirection.NA);
+                    System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                    NextTiles[x, y].Activity = IsRedActive(v, Tile.TDirection.NA);
 
                     NextTiles[x, y].Variant = (uint)
                         (((IsRedConnected(Tiles[x, y - 1], Tile.TDirection.South) ? 1 : 0) << 0) |
@@ -66,7 +67,8 @@ namespace rotstein
                             case Tile.TKind.NotGate:
                                 // Unary gate
                                 Vector2u input = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.South));
-                                new_activity = !IsRedActive(ref Tiles[input.X, input.Y], Tiles[x, y].Direction);
+                                System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                                new_activity = !IsRedActive(input, Tiles[x, y].Direction);
                                 break;
                             case Tile.TKind.OrGate:
                             case Tile.TKind.AndGate:
@@ -76,16 +78,22 @@ namespace rotstein
                                 switch (Tiles[x, y].Kind)
                                 {
                                     case Tile.TKind.OrGate:
-                                        new_activity =
-                                            IsRedActive(ref Tiles[input_left.X, input_left.Y], Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East)) ||
-                                            IsRedActive(ref Tiles[input_right.X, input_right.Y], Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West))
-                                            ;
+                                        {
+                                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                                            bool left = IsRedActive(input_left, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East));
+                                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                                            bool right = IsRedActive(input_right, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West));
+                                            new_activity = left || right;
+                                        }
                                         break;
                                     case Tile.TKind.AndGate:
-                                        new_activity =
-                                            IsRedActive(ref Tiles[input_left.X, input_left.Y], Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East)) &&
-                                            IsRedActive(ref Tiles[input_right.X, input_right.Y], Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West))
-                                            ;
+                                        {
+                                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                                            bool left = IsRedActive(input_left, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East));
+                                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                                            bool right = IsRedActive(input_right, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West));
+                                            new_activity = left && right;
+                                        }
                                         break;
                                 }
                                 break;
@@ -195,7 +203,8 @@ namespace rotstein
             if (Prealloc_RedCheckedNodes[x, y])
                 return false;
 
-            Prealloc_RedCheckedNodes[x, y] = true;
+            if (Tiles[x, y].Kind == Tile.TKind.RedstoneWire)
+                Prealloc_RedCheckedNodes[x, y] = true;
 
             switch (Tiles[x, y].Kind)
             {
@@ -205,23 +214,24 @@ namespace rotstein
                     isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.South), Tile.TDirection.North) ||
                     isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.East), Tile.TDirection.West);
                 default:
-                    return IsRedActive(ref Tiles[x, y], direction);
+                    return IsRedActive(v, direction);
             }
         }
 
         /// Is this tile active in direction "direction"?
-        private static bool IsRedActive(ref Tile tile, Tile.TDirection direction)
+        private bool IsRedActive(Vector2u v, Tile.TDirection direction)
         {
-            switch (tile.Kind)
+            (uint x, uint y) = (v.X, v.Y);
+            switch (Tiles[x, y].Kind)
             {
                 case Tile.TKind.RedstoneBlock:
                     return true;
                 case Tile.TKind.RedstoneWire:
-                    return tile.Activity;
+                    return isRedReachable(v, direction);
                 case Tile.TKind.NotGate:
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
-                    return (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North) == direction) && tile.Activity;
+                    return (Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North) == direction) && Tiles[x, y].Activity;
 
                 default:
                     return false;
