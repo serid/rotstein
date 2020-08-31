@@ -183,6 +183,7 @@ namespace rotstein
                     Player.Position.Y = file.ReadSingle();
                     var tiles_size = new Vector2i(file.ReadInt32(), file.ReadInt32());
                     Tiles = new Tile[tiles_size.X, tiles_size.Y];
+                    NextTiles = new Tile[tiles_size.X, tiles_size.Y];
                     for (int i = 0; i < tiles_size.X; i++)
                     {
                         for (int j = 0; j < tiles_size.Y; j++)
