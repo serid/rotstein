@@ -57,6 +57,19 @@ namespace rotstein
                         ((IsRedConnected(Tiles[x, y + 1], Tile.TDirection.North) ? 1 : 0) << 2) |
                         ((IsRedConnected(Tiles[x - 1, y], Tile.TDirection.East) ? 1 : 0) << 3));
                     break;
+                case Tile.TKind.RedstoneBridge:
+                    System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                    bool activity_N = IsRedActive(new Vector2u(x, y - 1), Tile.TDirection.South);
+                    System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                    bool activity_S = IsRedActive(new Vector2u(x, y + 1), Tile.TDirection.North);
+                    System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                    bool activity_W = IsRedActive(new Vector2u(x - 1, y), Tile.TDirection.East);
+                    System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                    bool activity_E = IsRedActive(new Vector2u(x + 1, y), Tile.TDirection.West);
+                    NextTiles[x, y].Variant = (uint)
+                        (uint)(((activity_N || activity_S ? 1 : 0) << 0) |
+                        (activity_W || activity_E ? 1 : 0) << 1);
+                    break;
                 case Tile.TKind.NotGate:
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
@@ -214,6 +227,20 @@ namespace rotstein
                     isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.West), Tile.TDirection.East) ||
                     isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.South), Tile.TDirection.North) ||
                     isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.East), Tile.TDirection.West);
+                case Tile.TKind.RedstoneBridge:
+                    switch (direction)
+                    {
+                        case Tile.TDirection.North:
+                            return isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.South), Tile.TDirection.North);
+                        case Tile.TDirection.South:
+                            return isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.North), Tile.TDirection.South);
+                        case Tile.TDirection.East:
+                            return isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.West), Tile.TDirection.East);
+                        case Tile.TDirection.West:
+                            return isRedReachable(Tile.PickTileInDirection(v, Tile.TDirection.East), Tile.TDirection.West);
+                        default:
+                            throw new System.ArgumentException("Direction was NA", "direction");
+                    }
                 default:
                     return IsRedActive(v, direction);
             }
@@ -228,6 +255,7 @@ namespace rotstein
                 case Tile.TKind.RedstoneBlock:
                     return true;
                 case Tile.TKind.RedstoneWire:
+                case Tile.TKind.RedstoneBridge:
                     return isRedReachable(v, direction);
                 case Tile.TKind.NotGate:
                 case Tile.TKind.OrGate:
@@ -246,6 +274,7 @@ namespace rotstein
             {
                 case Tile.TKind.RedstoneBlock:
                 case Tile.TKind.RedstoneWire:
+                case Tile.TKind.RedstoneBridge:
                     return true;
                 case Tile.TKind.NotGate:
                     return (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North) == direction) ||
@@ -277,9 +306,10 @@ namespace rotstein
                 Hotbar.Tiles[2] = new Tile(Tile.TKind.Iron);
                 Hotbar.Tiles[3] = new Tile(Tile.TKind.RedstoneBlock);
                 Hotbar.Tiles[4] = new Tile(Tile.TKind.RedstoneWire);
-                Hotbar.Tiles[5] = new Tile(Tile.TKind.NotGate);
-                Hotbar.Tiles[6] = new Tile(Tile.TKind.OrGate);
-                Hotbar.Tiles[7] = new Tile(Tile.TKind.AndGate);
+                Hotbar.Tiles[5] = new Tile(Tile.TKind.RedstoneBridge);
+                Hotbar.Tiles[6] = new Tile(Tile.TKind.NotGate);
+                Hotbar.Tiles[7] = new Tile(Tile.TKind.OrGate);
+                Hotbar.Tiles[8] = new Tile(Tile.TKind.AndGate);
             }
 
             public byte NextAnimationStep()
@@ -329,6 +359,7 @@ namespace rotstein
             Iron,
             RedstoneBlock,
             RedstoneWire,
+            RedstoneBridge,
             NotGate,
             OrGate,
             AndGate,

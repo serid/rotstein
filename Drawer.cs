@@ -119,6 +119,12 @@ namespace rotstein
                         (4 + (tile.Activity ? 1 : 0)) * TEXTURE_SIZE,
                         TEXTURE_SIZE, TEXTURE_SIZE);
                     break;
+                case Tile.TKind.RedstoneBridge:
+                    Prealloc_Sprite.TextureRect = new IntRect(
+                        ((int)tile.Variant) * TEXTURE_SIZE,
+                        6 * TEXTURE_SIZE,
+                        TEXTURE_SIZE, TEXTURE_SIZE);
+                    break;
 
                 default:
                     switch (tile.Direction)
