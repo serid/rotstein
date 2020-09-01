@@ -26,6 +26,7 @@ namespace rotstein
         private Sprite Prealloc_Sprite;
         private Text Prealloc_Text;
         private RectangleShape Prealloc_RectangleShape;
+        private Vertex[] Prealloc_Vertex_2;
 
         private Game Game;
 
@@ -39,6 +40,7 @@ namespace rotstein
             Prealloc_Text.Scale = new Vector2f(0.14f, 0.14f);
             Prealloc_Text.FillColor = new Color(0, 0, 0);
             Prealloc_RectangleShape = new RectangleShape();
+            Prealloc_Vertex_2 = new Vertex[2];
 
             Window = new RenderWindow(new VideoMode(WindowSize.X, WindowSize.Y), "Rotstein",
                 Styles.Titlebar | Styles.Close | Styles.Resize);
@@ -79,6 +81,17 @@ namespace rotstein
                     ClockHandleTicks();
 
                     Window.Clear(new Color(50, 100, 0));
+                    // Grid
+                    for (int i = 0; i < PLAYGROUND_SIZE; i++)
+                    {
+                        Color grid_color = new Color(150, 150, 150);
+                        Prealloc_Vertex_2[0] = new Vertex(new Vector2f(1 * TEXTURE_SIZE, i * TEXTURE_SIZE), grid_color);
+                        Prealloc_Vertex_2[1] = new Vertex(new Vector2f(PLAYGROUND_SIZE * TEXTURE_SIZE, i * TEXTURE_SIZE), grid_color);
+                        Window.Draw(Prealloc_Vertex_2, PrimitiveType.Lines);
+                        Prealloc_Vertex_2[0] = new Vertex(new Vector2f(i * TEXTURE_SIZE, 1 * TEXTURE_SIZE), grid_color);
+                        Prealloc_Vertex_2[1] = new Vertex(new Vector2f(i * TEXTURE_SIZE, PLAYGROUND_SIZE * TEXTURE_SIZE), grid_color);
+                        Window.Draw(Prealloc_Vertex_2, PrimitiveType.Lines);
+                    }
                     for (int i = 0; i < PLAYGROUND_SIZE; i++)
                     {
                         for (int j = 0; j < PLAYGROUND_SIZE; j++)
