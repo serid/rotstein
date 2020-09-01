@@ -121,22 +121,13 @@ namespace rotstein
                                 case Tile.TKind.Repeater:
                                     System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
                                     if (input_activity && Tiles[x, y].Variant == 0)
+                                        NextTiles[x, y].Variant = 1;
+                                    if (Tiles[x, y].Variant > 0)
                                     {
-                                        Tiles[x, y].Variant = 1;
-
-                                        // NOTE: following code always allocates memory in heap even if never executed
-                                        System.EventHandler action = null;
-                                        action = (_, __) =>
-                                        {
-                                            if (Tiles[x, y].Variant == 4)
-                                            {
-                                                Tiles[x, y].Variant = 0;
-                                                return;
-                                            }
-                                            Tiles[x, y].Variant += 1;
-                                            NextTickEvent += action;
-                                        };
-                                        NextTickEvent += action;
+                                        if (Tiles[x, y].Variant == 4)
+                                            NextTiles[x, y].Variant = 0;
+                                        else
+                                            NextTiles[x, y].Variant = Tiles[x, y].Variant + 1;
                                     }
                                     break;
                             }
