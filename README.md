@@ -23,7 +23,7 @@ A full adder in Rotstein:
 ~ or ` (Tilde or Grave) -- open console.
 
 Rotstein commands are:
-- world save <name> -- saves world to <name>.rts
-- world load <name> -- loads world from <name>.rts
-- label new <text> -- creates a label at Player's position with text <text>.
-- label delete -- deletes a label closest to player.
+- `world save "name"` -- saves world to "name".rts
+- `world load "name"` -- loads world from "name".rts
+- `label new "text"` -- creates a label at Player's position with text "text".
+- `label delete` -- deletes a label closest to player.
