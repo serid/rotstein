@@ -184,27 +184,37 @@ namespace rotstein
             UpdateTiles();
         }
 
-        public void ExecuteCommand(string command)
+        public string ExecuteCommand(string command)
         {
             string[] words = command.Split();
             if (words[0] == "world")
             {
+                if (words.Length < 2)
+                    return "Error: Subcommand not specified";
                 if (words[1] == "save")
                 {
-                    // TODO: print success message in chat
-                    SerializePlayerAndMap("saves/" + words[2] + ".rts");
+                    if (words.Length < 3)
+                        return "Error: Not enough arguments to command";
+                    return SerializePlayerAndMap("saves/" + words[2] + ".rts");
                 }
                 else if (words[1] == "load")
                 {
-                    // TODO: print success message in chat
-                    DeserializePlayerAndMap("saves/" + words[2] + ".rts");
+                    if (words.Length < 3)
+                        return "Error: Not enough arguments to command";
+                    return DeserializePlayerAndMap("saves/" + words[2] + ".rts");
                 }
+                return "Error: Unknown subcommand";
             }
             else if (words[0] == "label")
             {
+                if (words.Length < 2)
+                    return "Error: Subcommand not specified";
                 if (words[1] == "new")
                 {
+                    if (words.Length < 3)
+                        return "Error: Not enough arguments to command";
                     Labels.Add(new Label(string.Join(' ', words.Skip(2)), Player.Position));
+                    return "";
                 }
                 else if (words[1] == "delete")
                 {
@@ -225,11 +235,15 @@ namespace rotstein
 
                     if (nearest_label_ix != -1)
                         Labels.RemoveAt(nearest_label_ix);
+                    return "";
                 }
+                return "Error: Unknown subcommand";
             }
+
+            return "Error: Unknown command";
         }
 
-        private void SerializePlayerAndMap(string file_name)
+        private string SerializePlayerAndMap(string file_name)
         {
             using (var file = new System.IO.BinaryWriter(System.IO.File.Create(file_name)))
             {
@@ -258,57 +272,66 @@ namespace rotstein
                     file.Write(l.Pos.Y);
                 }
             }
+            return "World successfully saved";
         }
 
-        private void DeserializePlayerAndMap(string file_name)
+        private string DeserializePlayerAndMap(string file_name)
         {
-            using (var file = new System.IO.BinaryReader(System.IO.File.OpenRead(file_name)))
+            try
             {
-                var format_version = file.ReadInt32();
-
-                if (format_version == 1)
+                using (var file = new System.IO.BinaryReader(System.IO.File.OpenRead(file_name)))
                 {
-                    // Format is binary. All variables are ints by default.
-                    //
-                    // Layout:
-                    // FormatVersion
-                    // (float)Player.Position.X (float)Player.Position.Y
-                    // Tiles.GetLength(0) Tiles.GetLength(1)
-                    // <tiles,format:
-                    //   (byte)this.Kind
-                    //   (byte)this.Activity
-                    //   (byte)this.Variant
-                    //   (byte)this.Direction>
-                    // (int)Labels.Count
-                    // <labels,format:
-                    //   (string)this.v
-                    //   (float)this.Pos.X
-                    //   (float)this.Pos.Y>
+                    var format_version = file.ReadInt32();
 
-                    Player.Position.X = file.ReadSingle();
-                    Player.Position.Y = file.ReadSingle();
-                    var tiles_size = new Vector2i(file.ReadInt32(), file.ReadInt32());
-                    Tiles = new Tile[tiles_size.X, tiles_size.Y];
-                    NextTiles = new Tile[tiles_size.X, tiles_size.Y];
-                    for (int i = 0; i < tiles_size.X; i++)
+                    if (format_version == 1)
                     {
-                        for (int j = 0; j < tiles_size.Y; j++)
+                        // Format is binary. All variables are ints by default.
+                        //
+                        // Layout:
+                        // FormatVersion
+                        // (float)Player.Position.X (float)Player.Position.Y
+                        // Tiles.GetLength(0) Tiles.GetLength(1)
+                        // <tiles,format:
+                        //   (byte)this.Kind
+                        //   (byte)this.Activity
+                        //   (byte)this.Variant
+                        //   (byte)this.Direction>
+                        // (int)Labels.Count
+                        // <labels,format:
+                        //   (string)this.v
+                        //   (float)this.Pos.X
+                        //   (float)this.Pos.Y>
+
+                        Player.Position.X = file.ReadSingle();
+                        Player.Position.Y = file.ReadSingle();
+                        var tiles_size = new Vector2i(file.ReadInt32(), file.ReadInt32());
+                        Tiles = new Tile[tiles_size.X, tiles_size.Y];
+                        NextTiles = new Tile[tiles_size.X, tiles_size.Y];
+                        for (int i = 0; i < tiles_size.X; i++)
                         {
-                            Tiles[i, j].Kind = (Tile.TKind)file.ReadByte();
-                            Tiles[i, j].Activity = file.ReadByte() == 1 ? true : false;
-                            Tiles[i, j].Variant = (uint)file.ReadByte();
-                            Tiles[i, j].Direction = (Tile.TDirection)file.ReadByte();
+                            for (int j = 0; j < tiles_size.Y; j++)
+                            {
+                                Tiles[i, j].Kind = (Tile.TKind)file.ReadByte();
+                                Tiles[i, j].Activity = file.ReadByte() == 1 ? true : false;
+                                Tiles[i, j].Variant = (uint)file.ReadByte();
+                                Tiles[i, j].Direction = (Tile.TDirection)file.ReadByte();
+                            }
                         }
-                    }
-                    Labels.Capacity = file.ReadInt32();
-                    for (int i = 0; i < Labels.Capacity; i++)
-                    {
-                        Labels.Add(new Label(file.ReadString(),
-                        new Vector2f(file.ReadSingle(),
-                        file.ReadSingle())));
+                        Labels.Capacity = file.ReadInt32();
+                        for (int i = 0; i < Labels.Capacity; i++)
+                        {
+                            Labels.Add(new Label(file.ReadString(),
+                            new Vector2f(file.ReadSingle(),
+                            file.ReadSingle())));
+                        }
                     }
                 }
             }
+            catch (System.IO.FileNotFoundException)
+            {
+                return string.Format("Error: file \"{0}\" not found", file_name);
+            }
+            return "World successfully loaded";
         }
 
         private bool isRedReachable(Vector2u v, Tile.TDirection direction)

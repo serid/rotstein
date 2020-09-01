@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 
 using SFML.Graphics;
@@ -21,6 +22,7 @@ namespace rotstein
         private TInputState InputState = TInputState.None;
         private string CommandBox = "";
         private string LastCommand = "";
+        private List<string> ChatLog = new List<string>();
         private Font BasicFont = new Font("SourceCodePro-Regular.otf");
         // private Font BasicFont = new Font("Cantarell-Regular.otf");
 
@@ -188,17 +190,46 @@ namespace rotstein
 
             if (InputState == TInputState.Chat)
             {
-                // Chat
-                Prealloc_RectangleShape.Size = new Vector2f(100, 10);
-                Prealloc_RectangleShape.Position = window_zero + new Vector2f(0, WindowSize.Y / Scale / 4 * 3);
-                Prealloc_RectangleShape.FillColor = new Color(100, 100, 100, 200);
-                Window.Draw(Prealloc_RectangleShape);
+                float border_thickness = 2.0f;
+                FloatRect bound;
 
+                // CommandBox
                 Prealloc_Text.FillColor = new Color(0, 0, 0);
                 Prealloc_Text.OutlineThickness = 0;
                 Prealloc_Text.DisplayedString = '>' + CommandBox + (System.DateTime.Now.Second % 2 == 0 ? "" : "|");
-                Prealloc_Text.Position = Prealloc_RectangleShape.Position + new Vector2f(1.0f, -0.8f);
+                Prealloc_Text.Position = window_zero + new Vector2f(0, WindowSize.Y / Scale / 4 * 3);
+
+                bound = Prealloc_Text.GetGlobalBounds();
+
+                Prealloc_RectangleShape.Size = new Vector2f(bound.Width + border_thickness * 2, bound.Height + border_thickness * 2);
+                Prealloc_RectangleShape.Position = new Vector2f(bound.Left - border_thickness, bound.Top - border_thickness);
+                Prealloc_RectangleShape.FillColor = new Color(200, 200, 200);
+                Window.Draw(Prealloc_RectangleShape);
+
                 Window.Draw(Prealloc_Text);
+
+                float previous_message_top = Prealloc_RectangleShape.Position.Y;
+
+                // Chat
+                for (int i = ChatLog.Count - 1; i >= 0; i--)
+                {
+                    Prealloc_Text.FillColor = new Color(0, 0, 0);
+                    Prealloc_Text.OutlineThickness = 0;
+                    Prealloc_Text.DisplayedString = ChatLog[i];
+                    bound = Prealloc_Text.GetGlobalBounds();
+                    Prealloc_Text.Position = new Vector2f(window_zero.X + border_thickness, previous_message_top - bound.Height - border_thickness * 2);
+
+                    bound = Prealloc_Text.GetGlobalBounds();
+
+                    Prealloc_RectangleShape.Size = new Vector2f(bound.Width + border_thickness * 2, bound.Height + border_thickness * 2);
+                    Prealloc_RectangleShape.Position = new Vector2f(window_zero.X, bound.Top - border_thickness);
+                    Prealloc_RectangleShape.FillColor = new Color(200, 200, 200);
+                    Window.Draw(Prealloc_RectangleShape);
+
+                    Window.Draw(Prealloc_Text);
+
+                    previous_message_top = Prealloc_RectangleShape.Position.Y;
+                }
             }
 
             {
@@ -335,7 +366,9 @@ namespace rotstein
                             }
                             break;
                         case Keyboard.Key.Enter:
-                            Game.ExecuteCommand(CommandBox);
+                            string command_result = Game.ExecuteCommand(CommandBox);
+                            if (command_result != "")
+                                ChatLog.Add(command_result);
                             LastCommand = CommandBox;
                             CommandBox = "";
                             InputState = TInputState.None;
