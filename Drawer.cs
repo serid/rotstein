@@ -141,7 +141,7 @@ namespace rotstein
                         TEXTURE_SIZE, TEXTURE_SIZE);
                     break;
             }
-            
+
             switch (tile.Direction)
             {
                 case Tile.TDirection.North:
@@ -200,7 +200,7 @@ namespace rotstein
             {
                 Vector2f hotbar_zero = window_zero + new Vector2f(0, (float)WindowSize.Y / SCALE - 20);
 
-                for (int i = 0; i < 9; i++)
+                for (int i = 0; i < 10; i++)
                 {
                     Color color = i == Game.Player.Hotbar.Index ? new Color(50, 200, 50, 230) : new Color(50, 50, 50, 230);
 
@@ -252,6 +252,9 @@ namespace rotstein
                             break;
                         case Keyboard.Key.Num9:
                             Game.Player.Hotbar.Index = 8;
+                            break;
+                        case Keyboard.Key.Num0:
+                            Game.Player.Hotbar.Index = 9;
                             break;
                         case Keyboard.Key.W:
                         case Keyboard.Key.A:

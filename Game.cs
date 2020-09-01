@@ -117,7 +117,8 @@ namespace rotstein
                                             System.EventHandler action = null;
                                             action = (_, __) =>
                                             {
-                                                if (Tiles[x, y].Variant == 4){
+                                                if (Tiles[x, y].Variant == 4)
+                                                {
                                                     Tiles[x, y].Variant = 0;
                                                     return;
                                                 }
@@ -361,7 +362,7 @@ namespace rotstein
                 Hotbar.Tiles[6] = new Tile(Tile.TKind.NotGate);
                 Hotbar.Tiles[7] = new Tile(Tile.TKind.OrGate);
                 Hotbar.Tiles[8] = new Tile(Tile.TKind.AndGate);
-                Hotbar.Tiles[8] = new Tile(Tile.TKind.Repeater);
+                Hotbar.Tiles[9] = new Tile(Tile.TKind.Repeater);
             }
 
             public byte NextAnimationStep()
