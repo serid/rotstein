@@ -410,8 +410,11 @@ namespace rotstein
             long new_gc_used_memory = System.GC.GetTotalMemory(false);
             if (new_gc_used_memory != GcUsedMemory)
             {
+                if (new_gc_used_memory > GcUsedMemory)
+                    System.Console.WriteLine("New allocation of {0}. GC total allocated memory: {1}", new_gc_used_memory - GcUsedMemory, new_gc_used_memory);
+                else
+                    System.Console.WriteLine("Freed {0} bytes. GC total allocated memory: {1}", GcUsedMemory - new_gc_used_memory, new_gc_used_memory);
                 GcUsedMemory = new_gc_used_memory;
-                System.Console.WriteLine("New allocation. GC total allocated memory: {0}", new_gc_used_memory);
             }
 
             float elapsed = TicksClock.ElapsedTime.AsMilliseconds() / 1000f;
