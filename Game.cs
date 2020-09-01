@@ -3,6 +3,8 @@ namespace rotstein
 {
     class Game
     {
+        private static readonly int TEXTURE_SIZE = 16;
+
         public TPlayer Player { get; } = new TPlayer();
         public Tile[,] Tiles { get; private set; }
         private Tile[,] NextTiles { get; set; }
@@ -16,6 +18,20 @@ namespace rotstein
             Tiles = new Tile[playground_size, playground_size];
             NextTiles = new Tile[playground_size, playground_size];
             Prealloc_RedCheckedNodes = new bool[Tiles.GetLength(0), Tiles.GetLength(1)];
+
+            for (int i = 0; i < playground_size; i++)
+            {
+                Tiles[0, i] = new Tile(Tile.TKind.Iron);
+                Tiles[playground_size - 1, i] = new Tile(Tile.TKind.Iron);
+            }
+            for (int i = 1; i < playground_size - 1; i++)
+            {
+                Tiles[i, 0] = new Tile(Tile.TKind.Iron);
+                Tiles[i, playground_size - 1] = new Tile(Tile.TKind.Iron);
+            }
+            Tiles[playground_size / 2, playground_size / 2] = new Tile(Tile.TKind.RedstoneBlock);
+
+            Player.Position = new Vector2f(playground_size / 2 * TEXTURE_SIZE, playground_size / 2 * TEXTURE_SIZE);
         }
 
         public void PlaceTile(Vector2u v, Tile tile)

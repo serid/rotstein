@@ -8,7 +8,7 @@ namespace rotstein
 {
     class Drawer
     {
-        private static readonly uint PLAYGROUND_SIZE = 20;
+        private static readonly uint PLAYGROUND_SIZE = 50;
         private static readonly int SCALE = 6; // Game scale
         private static readonly int TEXTURE_SIZE = 16;
         private static readonly float TICK_LENGTH = 0.400f; // In seconds
@@ -63,17 +63,6 @@ namespace rotstein
 
             Window.SetView(new View(new Vector2f(Game.Player.Position.X + TEXTURE_SIZE / 2, Game.Player.Position.Y + 2 * TEXTURE_SIZE / 2), // Player center
             new Vector2f(WindowSize.X / SCALE, WindowSize.Y / SCALE)));
-
-            for (int i = 0; i < PLAYGROUND_SIZE; i++)
-            {
-                Game.Tiles[0, i] = new Tile(Tile.TKind.Iron);
-                Game.Tiles[PLAYGROUND_SIZE - 1, i] = new Tile(Tile.TKind.Iron);
-            }
-            for (int i = 1; i < PLAYGROUND_SIZE - 1; i++)
-            {
-                Game.Tiles[i, 0] = new Tile(Tile.TKind.Iron);
-                Game.Tiles[i, PLAYGROUND_SIZE - 1] = new Tile(Tile.TKind.Iron);
-            }
         }
 
         public void Loop()
@@ -338,6 +327,18 @@ namespace rotstein
             Vector2u tile_coord = new Vector2u(
                 (uint)System.Math.Ceiling((float)((args.X - WindowSize.X / 2) / SCALE + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
                 (uint)System.Math.Ceiling((float)((args.Y - WindowSize.Y / 2) / SCALE + Game.Player.Position.Y) / (float)(TEXTURE_SIZE)));
+
+            uint bound_north = 1;
+            uint bound_west = 1;
+            uint bound_east = (uint)Game.Tiles.GetLength(0) - 2;
+            uint bound_south = (uint)Game.Tiles.GetLength(1) - 2;
+
+            if (tile_coord.X < bound_north ||
+                tile_coord.Y < bound_west ||
+                tile_coord.X > bound_east ||
+                tile_coord.Y > bound_south)
+                return;
+
             switch (args.Button)
             {
                 case Mouse.Button.Left:
