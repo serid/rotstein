@@ -188,12 +188,12 @@ namespace rotstein
                 if (words[1] == "save")
                 {
                     // TODO: print success message in chat
-                    SerializePlayerAndMap(words[2]);
+                    SerializePlayerAndMap(words[2] + ".rts");
                 }
                 else if (words[1] == "load")
                 {
                     // TODO: print success message in chat
-                    DeserializePlayerAndMap(words[2]);
+                    DeserializePlayerAndMap(words[2] + ".rts");
                 }
             }
         }
