@@ -126,33 +126,38 @@ namespace rotstein
                         6 * TEXTURE_SIZE,
                         TEXTURE_SIZE, TEXTURE_SIZE);
                     break;
+                case Tile.TKind.Repeater:
+                    Prealloc_Sprite.TextureRect = new IntRect(
+                        ((int)tile.Variant) * TEXTURE_SIZE,
+                        7 * TEXTURE_SIZE,
+                        TEXTURE_SIZE, TEXTURE_SIZE);
+                    break;
 
                 default:
-                    switch (tile.Direction)
-                    {
-                        case Tile.TDirection.North:
-                            break;
-                        case Tile.TDirection.East:
-                            pos.X += TEXTURE_SIZE;
-                            break;
-                        case Tile.TDirection.South:
-                            pos.X += TEXTURE_SIZE;
-                            pos.Y += TEXTURE_SIZE;
-                            break;
-                        case Tile.TDirection.West:
-                            pos.Y += TEXTURE_SIZE;
-                            break;
-                    }
-
                     int texture_index = (int)tile.Kind - 1;
                     Prealloc_Sprite.TextureRect = new IntRect(
                         texture_index * TEXTURE_SIZE,
                         (0 + (tile.Activity ? 1 : 0)) * TEXTURE_SIZE,
                         TEXTURE_SIZE, TEXTURE_SIZE);
-
-                    Prealloc_Sprite.Rotation = tile.RotationDegree();
                     break;
             }
+            
+            switch (tile.Direction)
+            {
+                case Tile.TDirection.North:
+                    break;
+                case Tile.TDirection.East:
+                    pos.X += TEXTURE_SIZE;
+                    break;
+                case Tile.TDirection.South:
+                    pos.X += TEXTURE_SIZE;
+                    pos.Y += TEXTURE_SIZE;
+                    break;
+                case Tile.TDirection.West:
+                    pos.Y += TEXTURE_SIZE;
+                    break;
+            }
+            Prealloc_Sprite.Rotation = tile.RotationDegree();
             Prealloc_Sprite.Position = pos;
             Window.Draw(Prealloc_Sprite);
         }

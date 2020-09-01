@@ -88,6 +88,7 @@ namespace rotstein
                         (activity_W || activity_E ? 1 : 0) << 1);
                     break;
                 case Tile.TKind.NotGate:
+                case Tile.TKind.Repeater:
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
                     // Gates
@@ -95,10 +96,38 @@ namespace rotstein
                         switch (Tiles[x, y].Kind)
                         {
                             case Tile.TKind.NotGate:
+                            case Tile.TKind.Repeater:
                                 // Unary gate
                                 Vector2u input = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.South));
-                                System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
-                                new_activity = !IsRedActive(input, Tiles[x, y].Direction);
+                                switch (Tiles[x, y].Kind)
+                                {
+                                    case Tile.TKind.NotGate:
+                                        System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                                        new_activity = !IsRedActive(input, Tiles[x, y].Direction);
+                                        break;
+                                    case Tile.TKind.Repeater:
+                                        System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                                        new_activity = false; // It will be ignored in IsRedActive:Repeater
+                                        bool new_activ = IsRedActive(input, Tiles[x, y].Direction);
+                                        if (new_activ && Tiles[x, y].Variant == 0)
+                                        {
+                                            Tiles[x, y].Variant = 1;
+
+                                            // NOTE: following code always allocates memory in heap even if never executed
+                                            System.EventHandler action = null;
+                                            action = (_, __) =>
+                                            {
+                                                if (Tiles[x, y].Variant == 4){
+                                                    Tiles[x, y].Variant = 0;
+                                                    return;
+                                                }
+                                                Tiles[x, y].Variant += 1;
+                                                NextTickEvent += action;
+                                            };
+                                            NextTickEvent += action;
+                                        }
+                                        break;
+                                }
                                 break;
                             case Tile.TKind.OrGate:
                             case Tile.TKind.AndGate:
@@ -280,6 +309,8 @@ namespace rotstein
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
                     return (Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North) == direction) && Tiles[x, y].Activity;
+                case Tile.TKind.Repeater:
+                    return (Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North) == direction) && Tiles[x, y].Variant == 4;
 
                 default:
                     return false;
@@ -296,6 +327,7 @@ namespace rotstein
                 case Tile.TKind.RedstoneBridge:
                     return true;
                 case Tile.TKind.NotGate:
+                case Tile.TKind.Repeater:
                     return (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North) == direction) ||
                         (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.South) == direction);
                 case Tile.TKind.OrGate:
@@ -329,6 +361,7 @@ namespace rotstein
                 Hotbar.Tiles[6] = new Tile(Tile.TKind.NotGate);
                 Hotbar.Tiles[7] = new Tile(Tile.TKind.OrGate);
                 Hotbar.Tiles[8] = new Tile(Tile.TKind.AndGate);
+                Hotbar.Tiles[8] = new Tile(Tile.TKind.Repeater);
             }
 
             public byte NextAnimationStep()
@@ -382,6 +415,7 @@ namespace rotstein
             NotGate,
             OrGate,
             AndGate,
+            Repeater,
         }
 
         public enum TDirection
