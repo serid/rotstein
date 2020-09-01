@@ -19,7 +19,8 @@ namespace rotstein
         private Clock PhysicsClock;
         private Clock TicksClock;
         private TInputState InputState = TInputState.None;
-        private string Chatbox = "";
+        private string CommandBox = "";
+        private string LastCommand = "";
         private Font BasicFont = new Font("SourceCodePro-Regular.otf");
         // private Font BasicFont = new Font("Cantarell-Regular.otf");
 
@@ -192,7 +193,7 @@ namespace rotstein
                 Prealloc_RectangleShape.FillColor = new Color(100, 100, 100, 200);
                 Window.Draw(Prealloc_RectangleShape);
 
-                Prealloc_Text.DisplayedString = '>' + Chatbox + (System.DateTime.Now.Second % 2 == 0 ? "" : "|");
+                Prealloc_Text.DisplayedString = '>' + CommandBox + (System.DateTime.Now.Second % 2 == 0 ? "" : "|");
                 Prealloc_Text.Position = Prealloc_RectangleShape.Position + new Vector2f(1.0f, -0.8f);
                 Window.Draw(Prealloc_Text);
             }
@@ -295,15 +296,19 @@ namespace rotstein
                             InputState = TInputState.None;
                             break;
                         case Keyboard.Key.Backspace:
-                            if (Chatbox.Length > 0)
+                            if (CommandBox.Length > 0)
                             {
-                                Chatbox = Chatbox.Remove(Chatbox.Length - 1);
+                                CommandBox = CommandBox.Remove(CommandBox.Length - 1);
                             }
                             break;
                         case Keyboard.Key.Enter:
-                            Game.ExecuteCommand(Chatbox);
-                            Chatbox = "";
+                            Game.ExecuteCommand(CommandBox);
+                            LastCommand = CommandBox;
+                            CommandBox = "";
                             InputState = TInputState.None;
+                            break;
+                        case Keyboard.Key.Up:
+                            CommandBox = LastCommand;
                             break;
                     }
                     // Chatbox input is handled in TextEntered event
@@ -340,7 +345,7 @@ namespace rotstein
                     {
                         break;
                     }
-                    Chatbox += args.Unicode;
+                    CommandBox += args.Unicode;
                     break;
             }
         }
