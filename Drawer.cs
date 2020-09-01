@@ -280,8 +280,11 @@ namespace rotstein
                             break;
                         case Keyboard.Key.R:
                             Tile tile = Game.Player.Hotbar.IndexTile;
-                            tile.Direction = Tile.TDirectionRotate(tile.Direction, 1); // Rotate tile right
-                            Game.Player.Hotbar.IndexTile = tile;
+                            if (tile.Kind != Tile.TKind.RedstoneWire && tile.Kind != Tile.TKind.RedstoneBridge)
+                            {
+                                tile.Direction = Tile.TDirectionRotate(tile.Direction, 1); // Rotate tile right
+                                Game.Player.Hotbar.IndexTile = tile;
+                            }
                             break;
                     }
                     break;
