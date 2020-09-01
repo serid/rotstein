@@ -4,20 +4,20 @@ Rotstein is a Minecraft's redstone-inspired simulation game where player builds 
 
 # Controls
 
-WASD.
-1, 2, 3, …, 0, Shift-1, Shift-2, …, Shift-0 -- pick tile in hotbar.
-LMB -- place tile.
-RMB -- remove tile.
-MMB -- activate tile (works on levers).
-R -- rotate selected tile.
-Z, X -- zoom in and out.
+WASD.  
+1, 2, 3, …, 0, Shift-1, Shift-2, …, Shift-0 -- pick tile in hotbar.  
+LMB -- place tile.  
+RMB -- remove tile.  
+MMB -- activate tile (works on levers).  
+R -- rotate selected tile.  
+Z, X -- zoom in and out.  
 
-Basically ciruits work like Minecraft's redstone.
-Tiles from left to right:
-Wood, Stone, Iron, Redstone Block, Redstone Wire, Redstone Brdige, NOT Gate, OR Gate, AND Gate, XOR Gate, Repeater, Lever.
+Basically ciruits work like Minecraft's redstone.  
+Tiles from left to right:  
+Wood, Stone, Iron, Redstone Block, Redstone Wire, Redstone Brdige, NOT Gate, OR Gate, AND Gate, XOR Gate, Repeater, Lever.  
 ![hotbar](https://i.ibb.co/mGrM0sX/2020-09-01-16-00.png)
 
-A full adder in Rotstein:
+A full adder in Rotstein:  
 ![circuit example](https://i.ibb.co/k9TYSLX/Untitled.png)
 
 ~ or ` (Tilde or Grave) -- open console.
