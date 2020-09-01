@@ -1,4 +1,6 @@
+using System.Linq;
 using SFML.System;
+
 namespace rotstein
 {
     class Game
@@ -8,6 +10,8 @@ namespace rotstein
         public TPlayer Player { get; } = new TPlayer();
         public Tile[,] Tiles { get; private set; }
         private Tile[,] NextTiles { get; set; }
+
+        public System.Collections.Generic.List<Label> Labels = new System.Collections.Generic.List<Label>();
 
         private event System.EventHandler NextTickEvent;
 
@@ -196,6 +200,33 @@ namespace rotstein
                     DeserializePlayerAndMap("saves/" + words[2] + ".rts");
                 }
             }
+            else if (words[0] == "label")
+            {
+                if (words[1] == "new")
+                {
+                    Labels.Add(new Label(string.Join(' ', words.Skip(2)), Player.Position));
+                }
+                else if (words[1] == "delete")
+                {
+                    // Find nearest to player label
+                    int nearest_label_ix = -1;
+                    float nearest_label_dist_2 = float.MaxValue;
+                    for (int i = 0; i < Labels.Count; i++)
+                    {
+                        float Square(float a) => a * a;
+                        Label l = Labels[i];
+                        float dist_2 = Square(l.Pos.X - Player.Position.X) + Square(l.Pos.Y - Player.Position.Y);
+                        if (dist_2 < nearest_label_dist_2)
+                        {
+                            nearest_label_ix = i;
+                            nearest_label_dist_2 = dist_2;
+                        }
+                    }
+
+                    if (nearest_label_ix != -1)
+                        Labels.RemoveAt(nearest_label_ix);
+                }
+            }
         }
 
         private void SerializePlayerAndMap(string file_name)
@@ -218,6 +249,14 @@ namespace rotstein
                         file.Write((byte)tile.Direction);
                     }
                 }
+                // Labels
+                file.Write(Labels.Count);
+                foreach (Label l in Labels)
+                {
+                    file.Write(l.v);
+                    file.Write(l.Pos.X);
+                    file.Write(l.Pos.Y);
+                }
             }
         }
 
@@ -239,7 +278,12 @@ namespace rotstein
                     //   (byte)this.Kind
                     //   (byte)this.Activity
                     //   (byte)this.Variant
-                    //   (byte)this.Direction
+                    //   (byte)this.Direction>
+                    // (int)Labels.Count
+                    // <labels,format:
+                    //   (string)this.v
+                    //   (float)this.Pos.X
+                    //   (float)this.Pos.Y>
 
                     Player.Position.X = file.ReadSingle();
                     Player.Position.Y = file.ReadSingle();
@@ -255,6 +299,13 @@ namespace rotstein
                             Tiles[i, j].Variant = (uint)file.ReadByte();
                             Tiles[i, j].Direction = (Tile.TDirection)file.ReadByte();
                         }
+                    }
+                    Labels.Capacity = file.ReadInt32();
+                    for (int i = 0; i < Labels.Capacity; i++)
+                    {
+                        Labels.Add(new Label(file.ReadString(),
+                        new Vector2f(file.ReadSingle(),
+                        file.ReadSingle())));
                     }
                 }
             }
@@ -486,6 +537,18 @@ namespace rotstein
         public static uint BoolToActivity(bool b)
         {
             return b ? (uint)1 : (uint)0;
+        }
+    }
+
+    struct Label
+    {
+        public string v;
+        public Vector2f Pos;
+
+        public Label(string v, Vector2f pos)
+        {
+            this.v = v;
+            this.Pos = pos;
         }
     }
 }

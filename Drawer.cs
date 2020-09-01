@@ -39,7 +39,7 @@ namespace rotstein
             Prealloc_Sprite = new Sprite(Atlas);
             Prealloc_Text = new Text("", BasicFont, 60);
             Prealloc_Text.Scale = new Vector2f(0.14f, 0.14f);
-            Prealloc_Text.FillColor = new Color(0, 0, 0);
+            Prealloc_Text.OutlineColor = new Color(0, 0, 0);
             Prealloc_RectangleShape = new RectangleShape();
             Prealloc_Vertex_2 = new Vertex[2];
 
@@ -100,6 +100,7 @@ namespace rotstein
                         }
                     }
                     DrawPlayer();
+                    DrawLabels();
                     DrawGui();
 
                     Window.Display();
@@ -193,6 +194,8 @@ namespace rotstein
                 Prealloc_RectangleShape.FillColor = new Color(100, 100, 100, 200);
                 Window.Draw(Prealloc_RectangleShape);
 
+                Prealloc_Text.FillColor = new Color(0, 0, 0);
+                Prealloc_Text.OutlineThickness = 0;
                 Prealloc_Text.DisplayedString = '>' + CommandBox + (System.DateTime.Now.Second % 2 == 0 ? "" : "|");
                 Prealloc_Text.Position = Prealloc_RectangleShape.Position + new Vector2f(1.0f, -0.8f);
                 Window.Draw(Prealloc_Text);
@@ -214,6 +217,26 @@ namespace rotstein
                     DrawTile(hotbar_zero + new Vector2f(20, 0) * i + new Vector2f(2, 2),
                     Game.Player.Hotbar.Tiles[i]);
                 }
+            }
+        }
+
+        private void DrawLabels()
+        {
+            foreach (Label l in Game.Labels)
+            {
+                Prealloc_Text.FillColor = new Color(255, 255, 255);
+                Prealloc_Text.OutlineThickness = 3;
+                Prealloc_Text.DisplayedString = l.v;
+                Prealloc_Text.Position = l.Pos;
+
+                // Draw text background
+                FloatRect bounds = Prealloc_Text.GetGlobalBounds();
+                float border_thickness = 2.0f;
+                Prealloc_RectangleShape.Position = new Vector2f(bounds.Left - border_thickness, bounds.Top - border_thickness);
+                Prealloc_RectangleShape.Size = new Vector2f(bounds.Width + border_thickness * 2, bounds.Height + border_thickness * 2);
+                Window.Draw(Prealloc_RectangleShape);
+
+                Window.Draw(Prealloc_Text);
             }
         }
 
