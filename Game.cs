@@ -99,6 +99,7 @@ namespace rotstein
                 case Tile.TKind.Repeater:
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
+                case Tile.TKind.XorGate:
                     // Gates
                     switch (Tiles[x, y].Kind)
                     {
@@ -138,6 +139,7 @@ namespace rotstein
                             break;
                         case Tile.TKind.OrGate:
                         case Tile.TKind.AndGate:
+                        case Tile.TKind.XorGate:
                             // Binary gate
                             Vector2u input_left = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West));
                             System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
@@ -148,10 +150,13 @@ namespace rotstein
                             switch (Tiles[x, y].Kind)
                             {
                                 case Tile.TKind.OrGate:
-                                    NextTiles[x, y].Activity = left || right;
+                                    NextTiles[x, y].Activity = left | right;
                                     break;
                                 case Tile.TKind.AndGate:
-                                    NextTiles[x, y].Activity = left && right;
+                                    NextTiles[x, y].Activity = left & right;
+                                    break;
+                                case Tile.TKind.XorGate:
+                                    NextTiles[x, y].Activity = left ^ right;
                                     break;
                             }
                             break;
@@ -304,6 +309,7 @@ namespace rotstein
                 case Tile.TKind.NotGate:
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
+                case Tile.TKind.XorGate:
                     return (Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North) == direction) && Tiles[x, y].Activity;
                 case Tile.TKind.Repeater:
                     return (Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North) == direction) && Tiles[x, y].Variant == 4;
@@ -331,6 +337,7 @@ namespace rotstein
                         (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.South) == direction);
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
+                case Tile.TKind.XorGate:
                     return (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.North) == direction) ||
                         (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.East) == direction) ||
                         (Tile.TDirectionAdd(tile.Direction, Tile.TDirection.West) == direction);
@@ -350,7 +357,7 @@ namespace rotstein
 
             public TPlayer()
             {
-                Hotbar.Tiles = new Tile[11];
+                Hotbar.Tiles = new Tile[12];
                 Hotbar.Tiles[0] = new Tile(Tile.TKind.Planks);
                 Hotbar.Tiles[1] = new Tile(Tile.TKind.Stone);
                 Hotbar.Tiles[2] = new Tile(Tile.TKind.Iron);
@@ -360,8 +367,9 @@ namespace rotstein
                 Hotbar.Tiles[6] = new Tile(Tile.TKind.NotGate);
                 Hotbar.Tiles[7] = new Tile(Tile.TKind.OrGate);
                 Hotbar.Tiles[8] = new Tile(Tile.TKind.AndGate);
-                Hotbar.Tiles[9] = new Tile(Tile.TKind.Repeater);
-                Hotbar.Tiles[10] = new Tile(Tile.TKind.Lever);
+                Hotbar.Tiles[9] = new Tile(Tile.TKind.XorGate);
+                Hotbar.Tiles[10] = new Tile(Tile.TKind.Repeater);
+                Hotbar.Tiles[11] = new Tile(Tile.TKind.Lever);
             }
 
             public byte NextAnimationStep()
@@ -415,6 +423,7 @@ namespace rotstein
             NotGate,
             OrGate,
             AndGate,
+            XorGate,
             Repeater,
             Lever,
         }
