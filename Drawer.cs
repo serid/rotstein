@@ -9,10 +9,10 @@ namespace rotstein
     class Drawer
     {
         private static readonly uint PLAYGROUND_SIZE = 50;
-        private static readonly int SCALE = 6; // Game scale
         private static readonly int TEXTURE_SIZE = 16;
         private static readonly float TICK_LENGTH = 0.100f; // In seconds
 
+        private float Scale = 6; // Game scale
         private Vector2u WindowSize = new Vector2u(1600, 900); // TODO: change type to Vector2f and remove `* SCALE` everywhere
         private Texture Atlas;
         private RenderWindow Window;
@@ -51,7 +51,7 @@ namespace rotstein
             {
                 WindowSize = new Vector2u(args.Width, args.Height);
                 View view = Window.GetView();
-                view.Size = new Vector2f(WindowSize.X / SCALE, WindowSize.Y / SCALE);
+                view.Size = new Vector2f(WindowSize.X / Scale, WindowSize.Y / Scale);
                 Window.SetView(view);
             };
 
@@ -59,13 +59,13 @@ namespace rotstein
             Window.KeyReleased += HandleKeyRelease;
             Window.TextEntered += HandleTextEnter;
             Window.MouseButtonPressed += HandleMouseButtonPress;
-            Window.SetKeyRepeatEnabled(false);
+            Window.SetKeyRepeatEnabled(true);
             Window.SetVerticalSyncEnabled(true);
 
             Game = new Game(PLAYGROUND_SIZE);
 
             Window.SetView(new View(new Vector2f(Game.Player.Position.X + TEXTURE_SIZE / 2, Game.Player.Position.Y + 2 * TEXTURE_SIZE / 2), // Player center
-            new Vector2f(WindowSize.X / SCALE, WindowSize.Y / SCALE)));
+            new Vector2f(WindowSize.X / Scale, WindowSize.Y / Scale)));
         }
 
         public void Loop()
@@ -182,14 +182,14 @@ namespace rotstein
             // Coordinates of Window 0,0 pixel in **the world**.
             // Required to trick view to always display gui regardless of view position.
             Vector2f window_zero = new Vector2f(
-                center.X - WindowSize.X / SCALE / 2,
-                center.Y - WindowSize.Y / SCALE / 2);
+                center.X - WindowSize.X / Scale / 2,
+                center.Y - WindowSize.Y / Scale / 2);
 
             if (InputState == TInputState.Chat)
             {
                 // Chat
                 Prealloc_RectangleShape.Size = new Vector2f(100, 10);
-                Prealloc_RectangleShape.Position = window_zero + new Vector2f(0, WindowSize.Y / SCALE / 4 * 3);
+                Prealloc_RectangleShape.Position = window_zero + new Vector2f(0, WindowSize.Y / Scale / 4 * 3);
                 Prealloc_RectangleShape.FillColor = new Color(100, 100, 100, 200);
                 Window.Draw(Prealloc_RectangleShape);
 
@@ -199,7 +199,7 @@ namespace rotstein
             }
 
             {
-                Vector2f hotbar_zero = window_zero + new Vector2f(0, (float)WindowSize.Y / SCALE - 20);
+                Vector2f hotbar_zero = window_zero + new Vector2f(0, (float)WindowSize.Y / Scale - 20);
 
                 for (int i = 0; i < Game.Player.Hotbar.Tiles.Length; i++)
                 {
@@ -287,6 +287,16 @@ namespace rotstein
                                 Game.Player.Hotbar.IndexTile = tile;
                             }
                             break;
+                        case Keyboard.Key.Z:
+                            Scale *= 1.1f;
+                            Window.SetView(new View(new Vector2f(Game.Player.Position.X + TEXTURE_SIZE / 2, Game.Player.Position.Y + 2 * TEXTURE_SIZE / 2), // Player center
+                            new Vector2f(WindowSize.X / Scale, WindowSize.Y / Scale)));
+                            break;
+                        case Keyboard.Key.X:
+                            Scale /= 1.1f;
+                            Window.SetView(new View(new Vector2f(Game.Player.Position.X + TEXTURE_SIZE / 2, Game.Player.Position.Y + 2 * TEXTURE_SIZE / 2), // Player center
+                            new Vector2f(WindowSize.X / Scale, WindowSize.Y / Scale)));
+                            break;
                     }
                     break;
                 case TInputState.Chat:
@@ -353,8 +363,8 @@ namespace rotstein
         private void HandleMouseButtonPress(object _, SFML.Window.MouseButtonEventArgs args)
         {
             Vector2u tile_coord = new Vector2u(
-                (uint)System.Math.Ceiling((float)((args.X - WindowSize.X / 2) / SCALE + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
-                (uint)System.Math.Ceiling((float)((args.Y - WindowSize.Y / 2) / SCALE + Game.Player.Position.Y) / (float)(TEXTURE_SIZE)));
+                (uint)System.Math.Ceiling((float)((args.X - WindowSize.X / 2) / Scale + Game.Player.Position.X) / (float)(TEXTURE_SIZE) - 0.5),
+                (uint)System.Math.Ceiling((float)((args.Y - WindowSize.Y / 2) / Scale + Game.Player.Position.Y) / (float)(TEXTURE_SIZE)));
 
             uint bound_north = 1;
             uint bound_west = 1;
