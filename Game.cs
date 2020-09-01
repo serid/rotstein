@@ -61,7 +61,6 @@ namespace rotstein
 
             System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
 
-            bool new_activity = false;
             switch (Tiles[x, y].Kind)
             {
                 case Tile.TKind.RedstoneWire:
@@ -92,75 +91,62 @@ namespace rotstein
                 case Tile.TKind.OrGate:
                 case Tile.TKind.AndGate:
                     // Gates
+                    switch (Tiles[x, y].Kind)
                     {
-                        switch (Tiles[x, y].Kind)
-                        {
-                            case Tile.TKind.NotGate:
-                            case Tile.TKind.Repeater:
-                                // Unary gate
-                                Vector2u input = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.South));
-                                switch (Tiles[x, y].Kind)
-                                {
-                                    case Tile.TKind.NotGate:
-                                        System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
-                                        new_activity = !IsRedActive(input, Tiles[x, y].Direction);
-                                        break;
-                                    case Tile.TKind.Repeater:
-                                        System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
-                                        new_activity = false; // It will be ignored in IsRedActive:Repeater
-                                        bool new_activ = IsRedActive(input, Tiles[x, y].Direction);
-                                        if (new_activ && Tiles[x, y].Variant == 0)
-                                        {
-                                            Tiles[x, y].Variant = 1;
+                        case Tile.TKind.NotGate:
+                        case Tile.TKind.Repeater:
+                            // Unary gate
+                            Vector2u input = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.South));
+                            bool input_activity = IsRedActive(input, Tiles[x, y].Direction);
+                            switch (Tiles[x, y].Kind)
+                            {
+                                case Tile.TKind.NotGate:
+                                    System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                                    NextTiles[x, y].Activity = !input_activity;
+                                    break;
+                                case Tile.TKind.Repeater:
+                                    System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                                    if (input_activity && Tiles[x, y].Variant == 0)
+                                    {
+                                        Tiles[x, y].Variant = 1;
 
-                                            // NOTE: following code always allocates memory in heap even if never executed
-                                            System.EventHandler action = null;
-                                            action = (_, __) =>
+                                        // NOTE: following code always allocates memory in heap even if never executed
+                                        System.EventHandler action = null;
+                                        action = (_, __) =>
+                                        {
+                                            if (Tiles[x, y].Variant == 4)
                                             {
-                                                if (Tiles[x, y].Variant == 4)
-                                                {
-                                                    Tiles[x, y].Variant = 0;
-                                                    return;
-                                                }
-                                                Tiles[x, y].Variant += 1;
-                                                NextTickEvent += action;
-                                            };
+                                                Tiles[x, y].Variant = 0;
+                                                return;
+                                            }
+                                            Tiles[x, y].Variant += 1;
                                             NextTickEvent += action;
-                                        }
-                                        break;
-                                }
-                                break;
-                            case Tile.TKind.OrGate:
-                            case Tile.TKind.AndGate:
-                                // Binary gate
-                                Vector2u input_left = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West));
-                                Vector2u input_right = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East));
-                                switch (Tiles[x, y].Kind)
-                                {
-                                    case Tile.TKind.OrGate:
-                                        {
-                                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
-                                            bool left = IsRedActive(input_left, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East));
-                                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
-                                            bool right = IsRedActive(input_right, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West));
-                                            new_activity = left || right;
-                                        }
-                                        break;
-                                    case Tile.TKind.AndGate:
-                                        {
-                                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
-                                            bool left = IsRedActive(input_left, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East));
-                                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
-                                            bool right = IsRedActive(input_right, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West));
-                                            new_activity = left && right;
-                                        }
-                                        break;
-                                }
-                                break;
-                        }
+                                        };
+                                        NextTickEvent += action;
+                                    }
+                                    break;
+                            }
+                            break;
+                        case Tile.TKind.OrGate:
+                        case Tile.TKind.AndGate:
+                            // Binary gate
+                            Vector2u input_left = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West));
+                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                            bool left = IsRedActive(input_left, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East));
+                            Vector2u input_right = Tile.PickTileInDirection(v, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.East));
+                            System.Array.Clear(Prealloc_RedCheckedNodes, 0, Prealloc_RedCheckedNodes.Length); // Clear preallocated array before using it
+                            bool right = IsRedActive(input_right, Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.West));
+                            switch (Tiles[x, y].Kind)
+                            {
+                                case Tile.TKind.OrGate:
+                                    NextTiles[x, y].Activity = left || right;
+                                    break;
+                                case Tile.TKind.AndGate:
+                                    NextTiles[x, y].Activity = left && right;
+                                    break;
+                            }
+                            break;
                     }
-
-                    NextTiles[x, y].Activity = new_activity;
                     break;
             }
         }
