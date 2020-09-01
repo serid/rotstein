@@ -370,6 +370,9 @@ namespace rotstein
                 case Mouse.Button.Right:
                     Game.PlaceTile(tile_coord, new Tile(Tile.TKind.Void));
                     break;
+                case Mouse.Button.Middle:
+                    Game.ActivateTile(tile_coord);
+                    break;
             }
         }
 

@@ -42,6 +42,14 @@ namespace rotstein
             UpdateTiles();
         }
 
+        public void ActivateTile(Vector2u v) {
+            (uint x, uint y) = (v.X, v.Y);
+
+            if (Tiles[x, y].Kind == Tile.TKind.Lever)
+                Tiles[x, y].Activity = !Tiles[x, y].Activity;
+            UpdateTiles();
+        }
+
         private void UpdateTiles()
         {
             System.Array.Copy(Tiles, NextTiles, Tiles.Length);
@@ -298,6 +306,8 @@ namespace rotstein
                     return (Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North) == direction) && Tiles[x, y].Activity;
                 case Tile.TKind.Repeater:
                     return (Tile.TDirectionAdd(Tiles[x, y].Direction, Tile.TDirection.North) == direction) && Tiles[x, y].Variant == 4;
+                case Tile.TKind.Lever:
+                    return Tiles[x, y].Activity;
 
                 default:
                     return false;
@@ -312,6 +322,7 @@ namespace rotstein
                 case Tile.TKind.RedstoneBlock:
                 case Tile.TKind.RedstoneWire:
                 case Tile.TKind.RedstoneBridge:
+                case Tile.TKind.Lever:
                     return true;
                 case Tile.TKind.NotGate:
                 case Tile.TKind.Repeater:
@@ -349,6 +360,7 @@ namespace rotstein
                 Hotbar.Tiles[7] = new Tile(Tile.TKind.OrGate);
                 Hotbar.Tiles[8] = new Tile(Tile.TKind.AndGate);
                 Hotbar.Tiles[9] = new Tile(Tile.TKind.Repeater);
+                Hotbar.Tiles[7] = new Tile(Tile.TKind.Lever);
             }
 
             public byte NextAnimationStep()
@@ -403,6 +415,7 @@ namespace rotstein
             OrGate,
             AndGate,
             Repeater,
+            Lever,
         }
 
         public enum TDirection
