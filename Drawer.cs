@@ -11,7 +11,7 @@ namespace rotstein
         private static readonly uint PLAYGROUND_SIZE = 50;
         private static readonly int SCALE = 6; // Game scale
         private static readonly int TEXTURE_SIZE = 16;
-        private static readonly float TICK_LENGTH = 0.400f; // In seconds
+        private static readonly float TICK_LENGTH = 0.100f; // In seconds
 
         private Vector2u WindowSize = new Vector2u(1600, 900); // TODO: change type to Vector2f and remove `* SCALE` everywhere
         private Texture Atlas;
@@ -75,7 +75,6 @@ namespace rotstein
                 while (Window.IsOpen)
                 {
                     Window.DispatchEvents();
-                    Game.UpdateTiles();
 
                     ClockHandlePhysics();
                     ClockHandleTicks();

@@ -39,9 +39,10 @@ namespace rotstein
             (uint x, uint y) = (v.X, v.Y);
 
             Tiles[x, y] = tile;
+            UpdateTiles();
         }
 
-        public void UpdateTiles()
+        private void UpdateTiles()
         {
             System.Array.Copy(Tiles, NextTiles, Tiles.Length);
             for (uint i = 0; i < Tiles.GetLength(0); i++)
@@ -145,6 +146,8 @@ namespace rotstein
                 NextTickEvent = null;
                 NextTickEvent_tmp.Invoke(null, null);
             }
+
+            UpdateTiles();
         }
 
         public void ExecuteCommand(string command)
