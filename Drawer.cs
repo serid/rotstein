@@ -436,13 +436,19 @@ namespace rotstein
             switch (args.Button)
             {
                 case Mouse.Button.Left:
-                    Game.PlaceTile(tile_coord, Game.Player.Hotbar.IndexTile);
+                    if (Game.Tiles[tile_coord.X, tile_coord.Y].Kind == Tile.TKind.Lever)
+                        Game.ActivateTile(tile_coord);
+                    else
+                        Game.PlaceTile(tile_coord, Game.Player.Hotbar.IndexTile);
                     break;
                 case Mouse.Button.Right:
                     Game.PlaceTile(tile_coord, new Tile(Tile.TKind.Void));
                     break;
                 case Mouse.Button.Middle:
-                    Game.ActivateTile(tile_coord);
+                    Tile tile_under_cursor = Game.Tiles[tile_coord.X, tile_coord.Y];
+                    tile_under_cursor.Activity = false;
+                    tile_under_cursor.Variant = 0;
+                    Game.Player.Hotbar.IndexTile = tile_under_cursor; // Pick tile
                     break;
             }
         }
