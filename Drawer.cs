@@ -200,7 +200,7 @@ namespace rotstein
             {
                 Vector2f hotbar_zero = window_zero + new Vector2f(0, (float)WindowSize.Y / SCALE - 20);
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < Game.Player.Hotbar.Tiles.Length; i++)
                 {
                     Color color = i == Game.Player.Hotbar.Index ? new Color(50, 200, 50, 230) : new Color(50, 50, 50, 230);
 
@@ -227,34 +227,34 @@ namespace rotstein
                             InputState = TInputState.Chat;
                             break;
                         case Keyboard.Key.Num1:
-                            Game.Player.Hotbar.Index = 0;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 0 : 10);
                             break;
                         case Keyboard.Key.Num2:
-                            Game.Player.Hotbar.Index = 1;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 1 : 11);
                             break;
                         case Keyboard.Key.Num3:
-                            Game.Player.Hotbar.Index = 2;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 2 : 12);
                             break;
                         case Keyboard.Key.Num4:
-                            Game.Player.Hotbar.Index = 3;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 3 : 13);
                             break;
                         case Keyboard.Key.Num5:
-                            Game.Player.Hotbar.Index = 4;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 4 : 14);
                             break;
                         case Keyboard.Key.Num6:
-                            Game.Player.Hotbar.Index = 5;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 5 : 15);
                             break;
                         case Keyboard.Key.Num7:
-                            Game.Player.Hotbar.Index = 6;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 6 : 16);
                             break;
                         case Keyboard.Key.Num8:
-                            Game.Player.Hotbar.Index = 7;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 7 : 17);
                             break;
                         case Keyboard.Key.Num9:
-                            Game.Player.Hotbar.Index = 8;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 8 : 18);
                             break;
                         case Keyboard.Key.Num0:
-                            Game.Player.Hotbar.Index = 9;
+                            Game.Player.Hotbar.Index = (uint)(!args.Shift ? 9 : 19);
                             break;
                         case Keyboard.Key.W:
                         case Keyboard.Key.A:

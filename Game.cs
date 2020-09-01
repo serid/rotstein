@@ -42,7 +42,8 @@ namespace rotstein
             UpdateTiles();
         }
 
-        public void ActivateTile(Vector2u v) {
+        public void ActivateTile(Vector2u v)
+        {
             (uint x, uint y) = (v.X, v.Y);
 
             if (Tiles[x, y].Kind == Tile.TKind.Lever)
@@ -349,7 +350,7 @@ namespace rotstein
 
             public TPlayer()
             {
-                Hotbar.Tiles = new Tile[10];
+                Hotbar.Tiles = new Tile[11];
                 Hotbar.Tiles[0] = new Tile(Tile.TKind.Planks);
                 Hotbar.Tiles[1] = new Tile(Tile.TKind.Stone);
                 Hotbar.Tiles[2] = new Tile(Tile.TKind.Iron);
@@ -360,7 +361,7 @@ namespace rotstein
                 Hotbar.Tiles[7] = new Tile(Tile.TKind.OrGate);
                 Hotbar.Tiles[8] = new Tile(Tile.TKind.AndGate);
                 Hotbar.Tiles[9] = new Tile(Tile.TKind.Repeater);
-                Hotbar.Tiles[7] = new Tile(Tile.TKind.Lever);
+                Hotbar.Tiles[10] = new Tile(Tile.TKind.Lever);
             }
 
             public byte NextAnimationStep()
