@@ -422,19 +422,17 @@ namespace rotstein
 
             public TPlayer()
             {
-                Hotbar.Tiles = new Tile[12];
-                Hotbar.Tiles[0] = new Tile(Tile.TKind.Planks);
-                Hotbar.Tiles[1] = new Tile(Tile.TKind.Stone);
-                Hotbar.Tiles[2] = new Tile(Tile.TKind.Iron);
-                Hotbar.Tiles[3] = new Tile(Tile.TKind.RedstoneBlock);
-                Hotbar.Tiles[4] = new Tile(Tile.TKind.RedstoneWire);
-                Hotbar.Tiles[5] = new Tile(Tile.TKind.RedstoneBridge);
-                Hotbar.Tiles[6] = new Tile(Tile.TKind.NotGate);
-                Hotbar.Tiles[7] = new Tile(Tile.TKind.OrGate);
-                Hotbar.Tiles[8] = new Tile(Tile.TKind.AndGate);
-                Hotbar.Tiles[9] = new Tile(Tile.TKind.XorGate);
-                Hotbar.Tiles[10] = new Tile(Tile.TKind.Repeater);
-                Hotbar.Tiles[11] = new Tile(Tile.TKind.Lever);
+                var values = System.Enum.GetValues(typeof(Tile.TKind)).
+                    Cast<Tile.TKind>().
+                    Skip(1). // skip Void 
+                    ToArray();
+                Hotbar.Tiles = new Tile[values.Length];
+
+                int i = 0;
+                foreach (var item in values) {
+                    Hotbar.Tiles[i] = new Tile(item);
+                    i++;
+                }
             }
 
             public byte NextAnimationStep()
