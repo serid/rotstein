@@ -422,10 +422,10 @@ namespace rotstein
 
             public TPlayer()
             {
-                var values = System.Enum.GetValues(typeof(Tile.TKind)).
-                    Cast<Tile.TKind>().
-                    Skip(1). // skip Void 
-                    ToArray();
+                var values = System.Enum.GetValues(typeof(Tile.TKind))
+                                .Cast<Tile.TKind>()
+                                .Skip(1) // skip Void
+                                .ToArray();
                 Hotbar.Tiles = new Tile[values.Length];
 
                 int i = 0;

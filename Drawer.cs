@@ -57,8 +57,8 @@ namespace rotstein
                 Window.SetView(view);
             };
 
-            Window.KeyPressed += HandleKeyPress;
             Window.MouseWheelScrolled += MouseWheelScrolled;
+            Window.KeyPressed += HandleKeyPress;
             Window.KeyReleased += HandleKeyRelease;
             Window.TextEntered += HandleTextEnter;
             Window.MouseButtonPressed += HandleMouseButtonPress;
@@ -274,9 +274,9 @@ namespace rotstein
 
         private void MouseWheelScrolled(object _, SFML.Window.MouseWheelScrollEventArgs e)
         {
-            uint newIndex = Game.Player.Hotbar.Index + (uint)e.Delta;
-            if (newIndex < Game.Player.Hotbar.Tiles.Length)
-                Game.Player.Hotbar.Index = newIndex;
+            long new_index = (long)Game.Player.Hotbar.Index + (long)e.Delta;
+            if (new_index >= 0 && new_index < Game.Player.Hotbar.Tiles.Length)
+                Game.Player.Hotbar.Index = (uint)new_index;
         }
 
         private void HandleKeyPress(object _, SFML.Window.KeyEventArgs args)
